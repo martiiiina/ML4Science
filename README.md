@@ -1,50 +1,84 @@
-EEG Avalanche Analysis and ATM Computation
+# ML4Science: Avalanche and ATM Analysis
 
-This project processes EEG patient data to compute neuronal avalanche features and Avalanche Transition Matrices (ATM). It includes signal binarization, avalanche detection, feature extraction, and visualization.
+This repository contains code for preprocessing, feature extraction, and analysis of patient neural recordings. The focus is on computing **avalanches** and **Avalanche Transition Matrices (ATM)** from multi-region time-series data.
 
-Project Structure
-project/
-│
-├── main.py             # Main script to load data, compute avalanches, ATM, and feature matrix
-├── helpers.py          # Helper functions for data loading, preprocessing, avalanche detection, ATM computation   
-└── atm_plots/          # Output folder for ATM heatmaps
+---
 
-Requirements
+## Table of Contents
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Data Loading](#data-loading)
+- [Processing Pipeline](#processing-pipeline)
+- [Features and ATM](#features-and-atm)
+- [Usage](#usage)
+- [Output](#output)
+- [Author](#author)
 
-Python ≥ 3.8
+---
 
-NumPy
+## Project Structure
 
-SciPy
+ML4Science/
+├── atm_plots/ # Heatmaps of ATM matrices for each patient
+├── dataset_info/ # Raw data and metadata
+├── helpers.py # Helper functions for loading, binarization, ATM computation
+├── main.py # Main script for processing patients
+├── Literature/ # Reference papers
+├── README.md # Project description and instructions
 
-Matplotlib
+## Requirements
 
-scipy.io (for .mat file reading)
+Python 3.8+ with the following packages:
 
-Install dependencies with:
+- numpy
+- scipy
+- matplotlib
+- h5py / scipy.io (for `.mat` files)
 
-pip install numpy scipy matplotlib
+Install via pip:
 
-Usage
+```bash
+pip install numpy scipy matplotlib h5py
+Data Loading
+Patient data should be organized as follows:
 
-Place all patient data in a folder (e.g., Z:\acutestroke_data_combineflipping_final\flipped_rightlesion).
-Each patient folder should have the structure:
+root/
+├── Patient_001/
+│   └── Patient_001_T1_RS_Eyes_Open_6_ICAclean/
+│       ├── epoch1.mat
+│       ├── epoch2.mat
+│       └── ...
+├── Patient_002/
+│   └── ...
+The load_all_patients() function in helpers.py automatically reads all .mat files, concatenates epochs, and returns a dictionary {patient_id: np.array}.
 
-patient_id/
-    patient_id_T1_RS_Eyes_Open_6_ICAclean/
-        *.mat
+Processing Pipeline
+Z-score normalization along time for each region.
 
+Binarization based on a Z-threshold.
 
+Time binning: divide signal into bins of configurable size (default 4 ms).
 
-Outputs
+Avalanche detection: sequences of contiguous active bins.
 
-atm_plots/ contains ATM heatmaps for each patient.
+Feature computation: mean/max size, mean/max duration, branching factor.
 
+ATM computation: transition probability matrices across regions.
 
-Notes
+Features and ATM
+compute_avalanche_features(): returns a dictionary with:
 
-Ensure that each patient has .mat files with Value arrays of shape (n_regions, n_samples).
+mean_size
 
-bin_size depends on your sampling frequency (fs) and desired temporal resolution.
+max_size
 
-The code sorts patient IDs alphabetically to maintain consistent feature order.
+mean_duration
+
+max_duration
+
+branching_factor
+
+compute_ATM(): returns the average Avalanche Transition Matrix (ATM) for a patient.
+
+build_feature_matrix(): converts all patient ATMs into a matrix suitable for machine learning.
+
