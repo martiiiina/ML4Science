@@ -1,57 +1,50 @@
-"""
-Acute Stroke EEG Dataset (NumPy Format)
----------------------------------------
+EEG Avalanche Analysis and ATM Computation
 
-This dataset contains EEG recordings from acute stroke patients. All recordings
-were originally stored as MATLAB .mat files and have been converted to .npy
-format for fast loading in Python.
+This project processes EEG patient data to compute neuronal avalanche features and Avalanche Transition Matrices (ATM). It includes signal binarization, avalanche detection, feature extraction, and visualization.
 
-Data Format
------------
-Each EEG epoch is stored as a separate .npy file with the following properties:
-- Shape: (62, 30000)
-- Cortical regions: 62 (DKT atlas)
-- Sampling rate: 5000 Hz
-- Duration: 6 seconds
-- Data type: float NumPy array
+Project Structure
+project/
+│
+├── main.py             # Main script to load data, compute avalanches, ATM, and feature matrix
+├── helpers.py          # Helper functions for data loading, preprocessing, avalanche detection, ATM computation   
+└── atm_plots/          # Output folder for ATM heatmaps
 
-Folder Structure
-----------------
-root/
-    TiMeS_WP11_001/
-        TiMeS_WP11_001_T1_RS_Eyes_Open_6_ICAclean/
-            npy_data/
-                TiMeS_WP11_001_T1_RS_Eyes_Open_6_ICAclean_1_DKT_mean.npy
-                TiMeS_WP11_001_T1_RS_Eyes_Open_6_ICAclean_2_DKT_mean.npy
-                ...
+Requirements
 
-    TiMeS_WP11_002/
-        TiMeS_WP11_002_T1_RS_Eyes_Open_6_ICAclean/
-            npy_data/
-                TiMeS_WP11_002_T1_RS_Eyes_Open_6_ICAclean_1_DKT_mean.npy
-                ...
+Python ≥ 3.8
 
-Summary:
-- One folder per patient: TiMeS_WP11_XXX
-- Internal EEG folder: {TiMeS_WP11_XXX}_T1_RS_Eyes_Open_6_ICAclean
-- All .npy epoch files are stored in npy_data/
-- Each .npy file corresponds to one EEG epoch
+NumPy
 
-Loading Data in Python
-----------------------
-Use load_patient(npy_folder) to load all epochs for a single patient.
+SciPy
 
-Input:
-    Path to the patient's npy_data/ folder
-Output:
-    List of NumPy arrays (each of shape (62, 30000))
+Matplotlib
 
-Example usage:
+scipy.io (for .mat file reading)
 
-    root = r"Z:\\acutestroke_data_combineflipping_final\\flipped_rightlesion"
+Install dependencies with:
 
-    from helpers import load_all_patients
+pip install numpy scipy matplotlib
 
-    patients = load_all_patients(root)
+Usage
 
-"""
+Place all patient data in a folder (e.g., Z:\acutestroke_data_combineflipping_final\flipped_rightlesion).
+Each patient folder should have the structure:
+
+patient_id/
+    patient_id_T1_RS_Eyes_Open_6_ICAclean/
+        *.mat
+
+
+
+Outputs
+
+atm_plots/ contains ATM heatmaps for each patient.
+
+
+Notes
+
+Ensure that each patient has .mat files with Value arrays of shape (n_regions, n_samples).
+
+bin_size depends on your sampling frequency (fs) and desired temporal resolution.
+
+The code sorts patient IDs alphabetically to maintain consistent feature order.
