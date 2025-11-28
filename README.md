@@ -17,14 +17,13 @@ This repository contains code for preprocessing, feature extraction, and analysi
 ---
 
 ## Project Structure
-
 ML4Science/
 ├── atm_plots/ # Heatmaps of ATM matrices for each patient
 ├── dataset_info/ # Raw data and metadata
 ├── helpers.py # Helper functions for loading, binarization, ATM computation
 ├── main.py # Main script for processing patients
 ├── Literature/ # Reference papers
-├── README.md # Project description and instructions
+└── README.md # Project description and instructions
 
 ## Requirements
 
