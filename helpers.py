@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 
 def load_patient(patient_folder):
     epochs = []
-    for fname in os.listdir(patient_folder):
-        if not fname.endswith(".mat"):
+    for fname in sorted(os.listdir(patient_folder)):
+        if not fname.endswith(".npy"):
             continue
         fullpath = os.path.join(patient_folder, fname)
         try:
-            data = sio.loadmat(fullpath, struct_as_record=False, squeeze_me=True)
-            epoch = np.array(data["Value"])
+            data = np.load(fullpath)
+            epoch = data.T          # the .npy files are saved as (30000,62)
             epochs.append(epoch)
         except Exception as e:
             print(f"Error loading {fullpath}: {e}")
@@ -25,7 +25,7 @@ def load_all_patients(root):
     for patient in sorted(os.listdir(root)):
         name = os.path.basename(patient)
         patient_path = os.path.join(root, name)
-        internal_path_name = name + "_T1_RS_Eyes_Open_6_ICAclean"
+        internal_path_name = "scout_data"
         patient_path = os.path.join(patient_path, internal_path_name)
 
         # Skip files, take only folders
