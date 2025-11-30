@@ -7,7 +7,7 @@ root = r"Z:\acutestroke_data_combineflipping_final\flipped_rightlesion"
 patients = load_all_patients(root)  # dictionary, k: patients_id, v: np.array of concatenated epochs
 sanity_check(patients)
 
-# 2. Signal binarization and anavalnches construction
+# 2. Signal binarization and avalanches construction
 fs = 5000
 bin_size = int(0.004 * fs)       # 20 samples for a binning of 4 ms
 z_thresh= 2
