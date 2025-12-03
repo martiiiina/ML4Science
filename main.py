@@ -3,7 +3,7 @@ from scipy.stats import zscore
 from helpers import *
 
 # 1. Load data
-root = r"Z:\acutestroke_data_combineflipping_final\flipped_rightlesion"
+root = "/Volumes/MB_fall_2025//NeuronalAvalanches_dataset/acutestroke_data_combineflipping_final/flipped_rightlesion"
 patients = load_all_patients(root)  # dictionary, k: patients_id, v: np.array of concatenated epochs
 sanity_check(patients)
 

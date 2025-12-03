@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 
 def load_patient(patient_folder):
     epochs = []
-    for fname in os.listdir(patient_folder):
-        if not fname.endswith(".mat"):
+    for fname in sorted(os.listdir(patient_folder)):
+        if not fname.endswith(".npy"):
             continue
         fullpath = os.path.join(patient_folder, fname)
         try:
-            data = sio.loadmat(fullpath, struct_as_record=False, squeeze_me=True)
-            epoch = np.array(data["Value"])
+            data = np.load(fullpath)
+            epoch = data.T          # the .npy files are saved as (30000,62)
             epochs.append(epoch)
         except Exception as e:
             print(f"Error loading {fullpath}: {e}")
@@ -25,13 +25,13 @@ def load_all_patients(root):
     for patient in sorted(os.listdir(root)):
         name = os.path.basename(patient)
         patient_path = os.path.join(root, name)
-        internal_path_name = name + "_T1_RS_Eyes_Open_6_ICAclean"
+        internal_path_name = "scout_data"
         patient_path = os.path.join(patient_path, internal_path_name)
 
         # Skip files, take only folders
         if os.path.isdir(patient_path):
-            print(f"Loading {patient} ...")
-            patients_data[name] = load_patient(patient_path)
+                print(f"Loading {patient} ...")
+                patients_data[name] = load_patient(patient_path)
 
     return patients_data
 
@@ -251,3 +251,37 @@ def build_feature_matrix(patient_atm):
 
     return X, patients
 
+def process_group(root_folder, group_label, fs, bin_size, z_thresh, n_regions):
+    patients = load_all_patients(root_folder)  # dict {patient_id: epochs_concatenated}
+    sanity_check(patients)
+
+    patient_features = {}  # save feature vectors here
+    patient_atm = {}       # save ATMs here
+
+    for patient, times in patients.items():
+        n_epochs = times.shape[1] // 30000  
+        print(f"Processing patient {patient} ({n_epochs} epochs)")
+
+        # Z-score normalization (along time)
+        z_values = zscore(times, axis=1)
+
+        # Binarize according to z_thresh
+        binarized_signal = threshold_mat(z_values, z_thresh)
+
+        # Divide the signal in time bins 
+        binned_signal = active_bin_times(binarized_signal, bin_size)
+
+        # Find avalanches 
+        avalanches = find_avalanches(binned_signal, min_duration=3)
+        print(f"{len(avalanches)} avalanches found in the binned signal")
+
+        # Compute avalanches features
+        avalanche_features = compute_avalanche_features(avalanches)
+        patient_features[patient] =  avalanche_features
+
+        # Compute ATM
+        transition_matrix = compute_ATM(avalanches, n_regions)
+        patient_atm[patient] = transition_matrix
+        save_atm_plot(transition_matrix, patient, out_folder="atm_plots")
+
+    return patient_features, patient_atm
