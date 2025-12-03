@@ -1,84 +1,137 @@
 # ML4Science: Avalanche and ATM Analysis
 
-This repository contains code for preprocessing, feature extraction, and analysis of patient neural recordings. The focus is on computing **avalanches** and **Avalanche Transition Matrices (ATM)** from multi-region time-series data.
-
----
-
-## Table of Contents
-- [Project Structure](#project-structure)
-- [Requirements](#requirements)
-- [Data Loading](#data-loading)
-- [Processing Pipeline](#processing-pipeline)
-- [Features and ATM](#features-and-atm)
-- [Usage](#usage)
-- [Output](#output)
-- [Author](#author)
-
----
+This repository contains code for preprocessing, feature extraction, and analysis of patient neural recordings. The focus is on detecting **neuronal avalanches** and computing **Avalanche Transition Matrices (ATMs)** from multi-region EEG time-series.
 
 ## Project Structure
 
+```
 ML4Science/
-├── atm_plots/ # Heatmaps of ATM matrices for each patient
-├── dataset_info/ # Raw data and metadata
-├── helpers.py # Helper functions for loading, binarization, ATM computation
-├── main.py # Main script for processing patients
-├── Literature/ # Reference papers
-├── README.md # Project description and instructions
+├── atm_plots/          # Heatmaps of ATM matrices for each patient
+├── dataset_info/       # Information on data acquisition
+├── helpers.py          # Helper functions for loading, binarization, ATM computation
+├── main.py             # Main script for processing all patients
+├── Literature/         # Reference papers
+└── README.md           # Project description and instructions
+```
 
 ## Requirements
 
-Python 3.8+ with the following packages:
+Python 3.8+ and the following packages:
 
-- numpy
-- scipy
-- matplotlib
-- h5py / scipy.io (for `.mat` files)
+- numpy  
+- scipy  
+- matplotlib  
 
-Install via pip:
+Install dependencies:
 
-```bash
-pip install numpy scipy matplotlib h5py
-Data Loading
-Patient data should be organized as follows:
+```
+pip install numpy scipy matplotlib
+```
 
+## Data Loading
+
+Patient data must follow this structure:
+
+```
 root/
 ├── Patient_001/
-│   └── Patient_001_T1_RS_Eyes_Open_6_ICAclean/
-│       ├── epoch1.mat
-│       ├── epoch2.mat
+│   └── scout_data/
+│       ├── epoch_001.npy
+│       ├── epoch_002.npy
 │       └── ...
 ├── Patient_002/
 │   └── ...
-The load_all_patients() function in helpers.py automatically reads all .mat files, concatenates epochs, and returns a dictionary {patient_id: np.array}.
+```
 
-Processing Pipeline
-Z-score normalization along time for each region.
+Each `.npy` file contains **one EEG trial** with shape `(n_samples, n_channels)`.  
+The loader automatically **transposes** arrays to `(channels, time)` and concatenates multiple trials **along the time axis**.
 
-Binarization based on a Z-threshold.
+### load_all_patients()
 
-Time binning: divide signal into bins of configurable size (default 4 ms).
+Located in `helpers.py`, it:
 
-Avalanche detection: sequences of contiguous active bins.
+- scans all patient directories  
+- enters each `scout_data` folder  
+- loads all `.npy` trials  
+- sorts files to preserve trial order  
+- concatenates trials along time  
+- returns a dictionary:
 
-Feature computation: mean/max size, mean/max duration, branching factor.
+```
+{ "Patient_001": array(shape = regions × total_time), ... }
+```
 
-ATM computation: transition probability matrices across regions.
+## Processing Pipeline
 
-Features and ATM
-compute_avalanche_features(): returns a dictionary with:
+For each patient, `main.py` performs:
 
-mean_size
+1. Z-score normalization across time  
+2. Binarization using a Z-threshold  
+3. Time binning (default: 4 ms → 20 samples at 5 kHz)  
+4. Avalanche detection (active consecutive bins)  
+5. Avalanche feature computation  
+6. ATM construction (Avalanche Transition Matrix)  
+7. Saving ATM heatmaps into `atm_plots/`
 
-max_size
+## Avalanche Features
 
-mean_duration
+`compute_avalanche_features()` returns:
 
-max_duration
+- mean_size  
+- max_size  
+- mean_duration  
+- max_duration  
+- branching_factor  
 
-branching_factor
+Definitions:  
+- **size** → total active region-bins  
+- **duration** → number of consecutive active bins  
+- **branching factor** → average ratio n(t+1)/n(t)
 
-compute_ATM(): returns the average Avalanche Transition Matrix (ATM) for a patient.
+## Avalanche Transition Matrices (ATMs)
 
-build_feature_matrix(): converts all patient ATMs into a matrix suitable for machine learning.
+`compute_ATM()`:
 
+- counts transitions i → j across avalanche bins  
+- normalizes rows to probabilities  
+- averages across avalanches  
+- produces a **patient-specific ATM**  
+
+ATM heatmaps are saved in `atm_plots/`.
+
+## Feature Matrix for Machine Learning
+
+`build_feature_matrix()` creates an array:
+
+```
+(n_patients × n_regions²)
+```
+
+Each row stores the **flattened ATM** of a patient.
+
+## Usage
+
+Run the full pipeline:
+
+```
+python main.py
+```
+
+This will:
+
+- load `.npy` trials  
+- perform normalization + binning + avalanche detection  
+- compute patient ATMs  
+- save ATM heatmaps  
+- build the feature matrix `X`  
+
+## Output
+
+- `atm_plots/*.png` — ATM heatmaps  
+- `X.npy` (optional) — feature matrix  
+- console logs with ATM statistics and avalanche counts  
+
+## Author
+
+Project maintained by **Martina** for the EPFL ML4Science course.  
+Feel free to open issues or request improvements!
