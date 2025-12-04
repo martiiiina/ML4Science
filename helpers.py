@@ -1,8 +1,7 @@
 import os
 import numpy as np
-from scipy.stats import zscore
-import scipy.io as sio
 import matplotlib.pyplot as plt
+from mne_connectivity import spectral_connectivity_epochs
 
 def load_patient(patient_folder):
     epochs = []
@@ -17,21 +16,43 @@ def load_patient(patient_folder):
         except Exception as e:
             print(f"Error loading {fullpath}: {e}")
     concatenated_epochs = np.concatenate(epochs, axis=1)
-    return concatenated_epochs
+    epochs = np.array(epochs)
+    # Return both arrays as a dictionary
+    return {
+        "concatenated_epochs": concatenated_epochs,
+        "epochs": epochs
+    }
+
 
 def load_all_patients(root):
     patients_data = {}
+    root_stroke = os.path.join(root, "acutestroke_data_combineflipping_final")
+    for dir in os.listdir(root_stroke):
+        dir = os.path.join(root_stroke, dir)
+        if os.path.isdir(dir):
+            subdir = os.path.join(root_stroke, dir)
+            for patient in sorted(os.listdir(subdir)):
+                name = os.path.basename(patient)
+                patient_path = os.path.join(subdir, name)
+                internal_path_name = "scout_data"
+                patient_path = os.path.join(patient_path, internal_path_name)
 
-    for patient in sorted(os.listdir(root)):
-        name = os.path.basename(patient)
-        patient_path = os.path.join(root, name)
-        internal_path_name = "scout_data"
-        patient_path = os.path.join(patient_path, internal_path_name)
+                # Skip files, take only folders
+                if os.path.isdir(patient_path):
+                    print(f"Loading {patient} ...")
+                    patients_data[name]= load_patient(patient_path)
 
-        # Skip files, take only folders
-        if os.path.isdir(patient_path):
-            print(f"Loading {patient} ...")
-            patients_data[name] = load_patient(patient_path)
+    root_healthy = os.path.join(root, "healthyold_data")
+    for patient in sorted(os.listdir(root_healthy)):
+            name = os.path.basename(patient)
+            patient_path = os.path.join(root_healthy, name)
+            internal_path_name = "scout_data"
+            patient_path = os.path.join(patient_path, internal_path_name)
+
+            # Skip files, take only folders
+            if os.path.isdir(patient_path):
+                print(f"Loading {patient} ...")
+                patients_data[name] = load_patient(patient_path)
 
     return patients_data
 
@@ -202,7 +223,7 @@ def compute_ATM(avalanches, n_regions = 62):
     return ATM_mean
 
 
-def save_atm_plot(atm_matrix, patient_id, out_folder="atm_plots"):
+def save_mat_plot(atm_matrix, patient_id, out_folder="atm_plots"):
     """
     Save a heatmap of the ATM matrix for a patient without displaying it.
     """
@@ -250,4 +271,3 @@ def build_feature_matrix(patient_atm):
         X[i, :] = atm.reshape(-1)
 
     return X, patients
-

@@ -1,6 +1,9 @@
 import numpy as np
 from scipy.stats import zscore
 from helpers import *
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
 
 # 1. Load data
 root = r"Z:\acutestroke_data_combineflipping_final\flipped_rightlesion"
@@ -37,12 +40,5 @@ for patient, times in patients.items():
     # Compute ATM
     transition_matrix = compute_ATM(avalanches, n_regions)
     patient_atm[patient] = transition_matrix
-    save_atm_plot(transition_matrix, patient, out_folder="atm_plots")
-
-# 3. Build feature matrix
-X, patient_ids = build_feature_matrix(patient_atm)
-
-# 3. Build y labels
-#y = np.array([labels_patient[pid] for pid in patient_ids])
-
+    save_mat_plot(transition_matrix, patient, out_folder="atm_plots")
 
