@@ -9,7 +9,7 @@ patients = load_all_patients(root)  # dictionary, k: patients_id, v: np.array of
 # 2. Signal binarization and avalanches construction
 fs = 5000
 bin_size = int(0.004 * fs)       # 20 samples for a binning of 4 ms
-z_thresh= 2
+z_thresh = 2.5
 n_regions = 62
 rows = []
 

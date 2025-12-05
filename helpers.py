@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import zscore
 from mne_connectivity import spectral_connectivity_epochs
@@ -134,7 +135,8 @@ def find_avalanches(binned, min_duration):
     binned: (n_regions, n_bins), binary
     return: list of dict, each with:
         - 'activity': (n_regions, n_bins_avalanche)
-        - 'start_bin', 'end_bin'
+        - 'start_bin'
+        - 'end_bin'
     """
     n_bins = binned.shape[1]
     active_per_bin = binned.sum(axis=0)  # (n_bins,) number of regions over threshold per bin
@@ -173,7 +175,7 @@ def find_avalanches(binned, min_duration):
 def compute_avalanche_features(avalanches):
     sizes = []
     durations = []
-    branching_ns = [] 
+    branching_i=[]
 
     for aval in avalanches:
         activity = aval["activity"]  # shape: (n_regions, n_bins_av)
@@ -187,7 +189,6 @@ def compute_avalanche_features(avalanches):
         durations.append(n_bins_av)
 
         # branching: n(t+1)/n(t)
-        branching_i=[]
         n_t = activity.sum(axis=0)  # number of regions active in a bin where an avalanche was found (n_bins_av,)
         for t in range(n_bins_av - 1):
             branching_i.append(n_t[t+1] / n_t[t])
@@ -262,6 +263,32 @@ def label_from_patient_id(patient_id):
     # prende le ultime 3 cifre
     number = int(patient_id[-3:])
     return 0 if number > 100 else 1
+
+
+def save_results_to_excel(model_name, best_params, cv_score, test_score, filename="results.xlsx"):
+    """
+    Appends model results to an Excel file.
+    If the file doesn't exist, it creates it.
+    """
+
+    params_str = str(best_params)
+
+    new_row = pd.DataFrame([{
+        "Model": model_name,
+        "Best Parameters": params_str,
+        "CV Balanced Accuracy": cv_score,
+        "Test Balanced Accuracy": test_score
+    }])
+
+    if os.path.exists(filename):
+        df = pd.read_excel(filename)
+        df = pd.concat([df, new_row], ignore_index=True)
+    else:
+        df = new_row
+
+    df.to_excel(filename, index=False)
+    print(f"Saved results to {filename}")
+
 
 ##########################################################################################
 ##########################################################################################

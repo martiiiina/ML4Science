@@ -7,6 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline
+from helpers import *
 
 # 1. Load features data
 df = pd.read_csv("atm_dataset.csv")
@@ -25,8 +26,8 @@ print("Class distribution in TEST:",  np.bincount(y_test))
 
 # 3. Pipeline with Random Forest
 pipeline = Pipeline([
-    ('undersample', RandomUnderSampler(sampling_strategy={1:20})),
-    ('smote', SMOTE(sampling_strategy={0:20})),
+    ('undersample', RandomUnderSampler(sampling_strategy={1:20}, random_state=42)),
+    ('smote', SMOTE(sampling_strategy={0:20}, random_state=42)),
     ('scaler', StandardScaler()),   # optional for RF but okay to keep
     ('rf', RandomForestClassifier(random_state=42))
 ])
@@ -59,6 +60,14 @@ best_model = grid.best_estimator_
 
 # 5. Evaluate
 y_pred = best_model.predict(X_test)
-
-print("\nTest balanced accuracy:", balanced_accuracy_score(y_test, y_pred))
+test_bal_acc = balanced_accuracy_score(y_test, y_pred)
+print("\nTest balanced accuracy:", test_bal_acc)
 print(classification_report(y_test, y_pred))
+
+# 6. Save results
+save_results_to_excel(
+    model_name="SVM",
+    best_params=grid.best_params_,
+    cv_score=grid.best_score_,
+    test_score=test_bal_acc
+)

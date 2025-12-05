@@ -7,6 +7,7 @@ from xgboost import XGBClassifier
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline
+from helpers import *
 
 # 1. Load features data
 df = pd.read_csv("atm_dataset.csv")
@@ -74,6 +75,14 @@ best_model = grid.best_estimator_
 
 # 5. Evaluate on test set
 y_pred = best_model.predict(X_test)
-
-print("\nTest balanced accuracy:", balanced_accuracy_score(y_test, y_pred))
+test_bal_acc = balanced_accuracy_score(y_test, y_pred)
+print("\nTest balanced accuracy:", test_bal_acc)
 print(classification_report(y_test, y_pred))
+
+# 6. Save results
+save_results_to_excel(
+    model_name="XGBoost",
+    best_params=grid.best_params_,
+    cv_score=grid.best_score_,
+    test_score=test_bal_acc
+)

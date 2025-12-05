@@ -59,9 +59,6 @@ print("Best metric:", grid.best_params_['knn__metric'])
 # PIPELINE WITH PCA (optional)
 
 # 3b. Pipeline with PCA:
-
-#number of components through explained variance ratio:
-
 pipeline_PCA = Pipeline([
     ('undersample', RandomUnderSampler(sampling_strategy={1:20, 0:15})), #undersampling class 1 = stroke pts
     ('smote', SMOTE(sampling_strategy={0:20})),
@@ -83,7 +80,6 @@ grid.fit(X_train, y_train)
 
 print("Best pca components and k:", grid.best_params_)
 print("Best CV score with PCA:", grid.best_score_)
-
 
 best_model = grid.best_estimator_
 
