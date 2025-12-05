@@ -1,21 +1,17 @@
-import numpy as np
+import pandas as pd
 from scipy.stats import zscore
 from helpers import *
-from imblearn.over_sampling import SMOTE
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
 
 # 1. Load data
-root = r"Z:\acutestroke_data_combineflipping_final\flipped_rightlesion"
+root = r"\\sv-nas1.rcp.epfl.ch\Hummel-Data\TiMeS\Students_Interns\MB_fall_2025\NeuronalAvalanches_dataset"
 patients = load_all_patients(root)  # dictionary, k: patients_id, v: np.array of concatenated epochs
-sanity_check(patients)
 
 # 2. Signal binarization and avalanches construction
 fs = 5000
 bin_size = int(0.004 * fs)       # 20 samples for a binning of 4 ms
 z_thresh= 2
 n_regions = 62
-patient_atm = {}
+rows = []
 
 for patient, times in patients.items():
     n_epochs = times.shape[1] // 30000  
@@ -39,6 +35,20 @@ for patient, times in patients.items():
 
     # Compute ATM
     transition_matrix = compute_ATM(avalanches, n_regions)
-    patient_atm[patient] = transition_matrix
     save_mat_plot(transition_matrix, patient, out_folder="atm_plots")
 
+    flattened_atm = transition_matrix.flatten()     # shape (3844,)
+    row = {
+        "patient_id": patient,
+        "label": label_from_patient_id(patient)
+    }
+    # Add coherence features as separate columns
+    for i, v in enumerate(flattened_atm):
+        row[f"atm_{i}"] = v
+    rows.append(row)
+
+# Build final dataframe
+df = pd.DataFrame(rows)
+df.to_csv("atm_dataset.csv", index=False)
+
+print("Saved atm_dataset.csv")

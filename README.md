@@ -7,11 +7,17 @@ This repository contains code for preprocessing, feature extraction, and analysi
 ```
 ML4Science/
 ├── atm_plots/          # Heatmaps of ATM matrices for each patient
+├── coh_plots/          # Heatmaps of Coh matrices for each patient
 ├── dataset_info/       # Information on data acquisition
-├── helpers.py          # Helper functions for loading, binarization, ATM computation
-├── main.py             # Main script for processing all patients
+├── extract_atm.py      # Extract ATMs and save features in a .csv file
+├── extract_coh.py      # Extract Cohs and save features in a .csv file
+├── helpers.py          # Helper functions for loading, binarization, ATM/Coh computation
+├── knn_classifier.py/  # KNN classifier
 ├── Literature/         # Reference papers
-└── README.md           # Project description and instructions
+├── README.md           # Project description and instructions
+├── rf_classifier.py/   # Random Forest classifier
+├── svm_classifier.py/  # SVM classifier
+└── xgb_classifier.py/  # XGBoost classifier
 ```
 
 ## Requirements
@@ -21,6 +27,7 @@ Python 3.8+ and the following packages:
 - numpy  
 - scipy  
 - matplotlib  
+- scikit-learn
 
 Install dependencies:
 
@@ -63,7 +70,7 @@ Located in `helpers.py`, it:
 
 ## Processing Pipeline
 
-For each patient, `main.py` performs:
+For each patient, `extract_atm.py` performs:
 
 1. Z-score normalization across time  
 2. Binarization using a Z-threshold  
@@ -114,7 +121,7 @@ Each row stores the **flattened ATM** of a patient.
 Run the full pipeline:
 
 ```
-python main.py
+python extract_atm.py
 ```
 
 This will:

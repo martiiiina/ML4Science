@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import zscore
 from mne_connectivity import spectral_connectivity_epochs
 
 def load_patient(patient_folder):
@@ -16,12 +17,7 @@ def load_patient(patient_folder):
         except Exception as e:
             print(f"Error loading {fullpath}: {e}")
     concatenated_epochs = np.concatenate(epochs, axis=1)
-    epochs = np.array(epochs)
-    # Return both arrays as a dictionary
-    return {
-        "concatenated_epochs": concatenated_epochs,
-        "epochs": epochs
-    }
+    return concatenated_epochs
 
 
 def load_all_patients(root):
@@ -41,7 +37,7 @@ def load_all_patients(root):
                 if os.path.isdir(patient_path):
                     print(f"Loading {patient} ...")
                     patients_data[name]= load_patient(patient_path)
-
+                    
     root_healthy = os.path.join(root, "healthyold_data")
     for patient in sorted(os.listdir(root_healthy)):
             name = os.path.basename(patient)
@@ -56,34 +52,53 @@ def load_all_patients(root):
 
     return patients_data
 
-def sanity_check(patients_data, epoch_length_samples=30000):
-    """
-    Sanity check for patient data.
+def load_patient_coh(patient_folder):
+    epochs = []
+    for fname in sorted(os.listdir(patient_folder)):
+        if not fname.endswith(".npy"):
+            continue
+        fullpath = os.path.join(patient_folder, fname)
+        try:
+            data = np.load(fullpath)
+            epoch = data.T          # the .npy files are saved as (30000,62)
+            epochs.append(epoch)
+        except Exception as e:
+            print(f"Error loading {fullpath}: {e}")
+    epochs = np.array(epochs)
+    # Return both arrays as a dictionary
+    return epochs
 
-    Checks:
-        - Total number of timepoints is divisible by epoch length
-        - No region contains only zeros
-    """
-    issues = {}
+def load_all_patients_coh(root):
+    patients_data = {}
+    root_stroke = os.path.join(root, "acutestroke_data_combineflipping_final")
+    for dir in os.listdir(root_stroke):
+        dir = os.path.join(root_stroke, dir)
+        if os.path.isdir(dir):
+            subdir = os.path.join(root_stroke, dir)
+            for patient in sorted(os.listdir(subdir)):
+                name = os.path.basename(patient)
+                patient_path = os.path.join(subdir, name)
+                internal_path_name = "scout_data"
+                patient_path = os.path.join(patient_path, internal_path_name)
 
-    for patient, data in patients_data.items():
-        patient_issues = []
+                # Skip files, take only folders
+                if os.path.isdir(patient_path):
+                    print(f"Loading {patient} ...")
+                    patients_data[name]= load_patient_coh(patient_path)
 
-        n_regions, n_samples = data.shape
+    root_healthy = os.path.join(root, "healthyold_data")
+    for patient in sorted(os.listdir(root_healthy)):
+            name = os.path.basename(patient)
+            patient_path = os.path.join(root_healthy, name)
+            internal_path_name = "scout_data"
+            patient_path = os.path.join(patient_path, internal_path_name)
 
-        # Check for regions with all zeros
-        zero_regions = np.where(np.all(data == 0, axis=1))[0]
-        if len(zero_regions) > 0:
-            patient_issues.append(f"Regions {zero_regions.tolist()} contain all zeros")
+            # Skip files, take only folders
+            if os.path.isdir(patient_path):
+                print(f"Loading {patient} ...")
+                patients_data[name] = load_patient_coh(patient_path)
 
-        # Check if total samples divisible by epoch_length
-        if n_samples % epoch_length_samples != 0:
-            patient_issues.append(f"Total samples {n_samples} not divisible by epoch length {epoch_length_samples}")
-
-        if patient_issues:
-            issues[patient] = patient_issues
-
-    return issues
+    return patients_data
 
 def threshold_mat(data, thresh):
     """Binarize a matrix (regions x time) according to a z-threshold."""
@@ -225,15 +240,15 @@ def compute_ATM(avalanches, n_regions = 62):
 
 def save_mat_plot(atm_matrix, patient_id, out_folder="atm_plots"):
     """
-    Save a heatmap of the ATM matrix for a patient without displaying it.
+    Save a heatmap of the matrix for a patient without displaying it.
     """
     os.makedirs(out_folder, exist_ok=True)
-    save_path = os.path.join(out_folder, f"{patient_id}_ATM.png")
+    save_path = os.path.join(out_folder, f"{patient_id}.png")
 
     plt.figure(figsize=(8, 6))
     plt.imshow(atm_matrix, cmap="viridis", aspect="auto")
-    plt.title(f"ATM - {patient_id}")
-    plt.colorbar(label="Transition Probability")
+    plt.title(f"{patient_id}")
+    plt.colorbar(label="Values")
     plt.xlabel("Region j")
     plt.ylabel("Region i")
 
@@ -243,31 +258,45 @@ def save_mat_plot(atm_matrix, patient_id, out_folder="atm_plots"):
 
     print(f"Saved ATM plot for {patient_id} → {save_path}")
 
+def label_from_patient_id(patient_id):
+    # prende le ultime 3 cifre
+    number = int(patient_id[-3:])
+    return 0 if number > 100 else 1
 
+##########################################################################################
+##########################################################################################
+##########################################################################################
+# FOR STATISTICAL ANALYSIS
 
-def build_feature_matrix(patient_atm):
-    """
-    Convert patient-level ATM dict to a feature matrix X (patients x features),
-    using all the directional couples (i → j)
-    
-    Parameters:
-        patient_atm: dict {patient_id: ATM_matrix (n_regions x n_regions)}
-        
-    Returns:
-        X: numpy array of shape (n_patients, n_regions * n_regions)
-        patients: list of patient IDs in the same order as the rows of X
-    """
-    # Sort patient IDs to ensure consistent order
-    patients = sorted(patient_atm.keys())
+def process_group(root_folder, group_label, fs, bin_size, z_thresh, n_regions):
+    patients = load_all_patients(root_folder)  # dict {patient_id: epochs_concatenated}
+    patient_features = {}  # save feature vectors here
+    patient_atm = {}       # save ATMs here
 
-    patients = list(patient_atm.keys())
-    first = patient_atm[patients[0]]
-    n_regions = first.shape[0]
-    n_features = n_regions * n_regions
-    X = np.zeros((len(patients), n_features))
-    for i, p in enumerate(patients):
-        atm = patient_atm[p]
-        # flatten the atm matrix
-        X[i, :] = atm.reshape(-1)
+    for patient, times in patients.items():
+        n_epochs = times.shape[1] // 30000  
+        print(f"Processing patient {patient} ({n_epochs} epochs)")
 
-    return X, patients
+        # Z-score normalization (along time)
+        z_values = zscore(times, axis=1)
+
+        # Binarize according to z_thresh
+        binarized_signal = threshold_mat(z_values, z_thresh)
+
+        # Divide the signal in time bins 
+        binned_signal = active_bin_times(binarized_signal, bin_size)
+
+        # Find avalanches 
+        avalanches = find_avalanches(binned_signal, min_duration=3)
+        print(f"{len(avalanches)} avalanches found in the binned signal")
+
+        # Compute avalanches features
+        avalanche_features = compute_avalanche_features(avalanches)
+        patient_features[patient] =  avalanche_features
+
+        # Compute ATM
+        transition_matrix = compute_ATM(avalanches, n_regions)
+        patient_atm[patient] = transition_matrix
+        save_mat_plot(transition_matrix, patient, out_folder="atm_plots")
+
+    return patient_features, patient_atm
