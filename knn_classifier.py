@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import SMOTE
+from sklearn.decomposition import PCA
 from imblearn.pipeline import Pipeline
 
 # 1. Load features data
@@ -51,3 +52,46 @@ y_pred = best_model.predict(X_test)
 print("Balanced accuracy:", balanced_accuracy_score(y_test, y_pred))
 print(classification_report(y_test, y_pred))
 print("Best K:", grid.best_params_['knn__n_neighbors'])
+print("Best weights:", grid.best_params_['knn__weights'])
+print("Best metric:", grid.best_params_['knn__metric'])
+
+
+# PIPELINE WITH PCA (optional)
+
+# 3b. Pipeline with PCA:
+
+#number of components through explained variance ratio:
+
+pipeline_PCA = Pipeline([
+    ('undersample', RandomUnderSampler(sampling_strategy={1:20, 0:15})), #undersampling class 1 = stroke pts
+    ('smote', SMOTE(sampling_strategy={0:20})),
+    ('pca', PCA(n_components=0.95, svd_solver='full')), 
+    ("scaler", StandardScaler()),
+    ("knn", KNeighborsClassifier(metric="euclidean"))
+])
+
+# 4b. Grid search for best k with PCA
+
+cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+params_PCA = {
+    'n_neighbors': [1, 3, 5, 7],
+    'knn__weights': ['uniform', 'distance'],
+    'knn__metric': ['euclidean', 'manhattan'],    
+    }
+grid = GridSearchCV(pipeline_PCA, params_PCA, cv=cv, scoring='balanced_accuracy') #cv already does cross validation when doing grid search -> change only if stratified is desired
+grid.fit(X_train, y_train)
+
+print("Best pca components and k:", grid.best_params_)
+print("Best CV score with PCA:", grid.best_score_)
+
+
+best_model = grid.best_estimator_
+
+# 5b. Evaluate with PCA
+y_pred = best_model.predict(X_test)
+
+print("Balanced accuracy with PCA:", balanced_accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+print("Best K:", grid.best_params_['n_neighbors'])
+print("Best weights:", grid.best_params_['knn__weights'])
+print("Best metric:", grid.best_params_['knn__metric'])
