@@ -60,7 +60,7 @@ print("Best metric:", grid.best_params_['knn__metric'])
 
 # 3b. Pipeline with PCA:
 pipeline_PCA = Pipeline([
-    ('undersample', RandomUnderSampler(sampling_strategy={1:20, 0:15})), #undersampling class 1 = stroke pts
+    ('undersample', RandomUnderSampler(sampling_strategy={1:20})), #undersampling class 1 = stroke pts
     ('smote', SMOTE(sampling_strategy={0:20})),
     ('pca', PCA(n_components=0.95, svd_solver='full')), 
     ("scaler", StandardScaler()),
@@ -71,7 +71,7 @@ pipeline_PCA = Pipeline([
 
 cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 params_PCA = {
-    'n_neighbors': [1, 3, 5, 7],
+    'knn__n_neighbors': [1, 3, 5, 7],
     'knn__weights': ['uniform', 'distance'],
     'knn__metric': ['euclidean', 'manhattan'],    
     }
@@ -88,6 +88,6 @@ y_pred = best_model.predict(X_test)
 
 print("Balanced accuracy with PCA:", balanced_accuracy_score(y_test, y_pred))
 print(classification_report(y_test, y_pred))
-print("Best K:", grid.best_params_['n_neighbors'])
+print("Best K:", grid.best_params_['knn__n_neighbors'])
 print("Best weights:", grid.best_params_['knn__weights'])
 print("Best metric:", grid.best_params_['knn__metric'])
