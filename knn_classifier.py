@@ -26,8 +26,8 @@ print("Class distribution in TEST:",  np.bincount(y_test))
 
 # 3. Pipeline 
 pipeline = Pipeline([
-    ('undersample', RandomUnderSampler(sampling_strategy={1:20})), 
-    ('smote', SMOTE(sampling_strategy={0:20})),
+    ('undersample', RandomUnderSampler(sampling_strategy={1:20}, random_state=42)), 
+    ('smote', SMOTE(sampling_strategy={0:20}, random_state=42)),
     ("scaler", StandardScaler()),
     ("knn", KNeighborsClassifier(metric="euclidean"))
 ])
@@ -60,8 +60,8 @@ print("Best metric:", grid.best_params_['knn__metric'])
 
 # 3b. Pipeline with PCA:
 pipeline_PCA = Pipeline([
-    ('undersample', RandomUnderSampler(sampling_strategy={1:20})), #undersampling class 1 = stroke pts
-    ('smote', SMOTE(sampling_strategy={0:20})),
+    ('undersample', RandomUnderSampler(sampling_strategy={1:20}, random_state=42)), 
+    ('smote', SMOTE(sampling_strategy={0:20}, random_state=42)),
     ('pca', PCA(n_components=0.95, svd_solver='full')), 
     ("scaler", StandardScaler()),
     ("knn", KNeighborsClassifier(metric="euclidean"))
