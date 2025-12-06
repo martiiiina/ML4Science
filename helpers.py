@@ -294,9 +294,24 @@ def save_results_to_excel(model_name, best_params, cv_score, test_score, filenam
 ##########################################################################################
 ##########################################################################################
 # FOR STATISTICAL ANALYSIS
+def load_all_patients_sa(root):
+    patients_data = {}
+
+    for patient in sorted(os.listdir(root)):
+        name = os.path.basename(patient)
+        patient_path = os.path.join(root, name)
+        internal_path_name = "scout_data"
+        patient_path = os.path.join(patient_path, internal_path_name)
+
+        # Skip files, take only folders
+        if os.path.isdir(patient_path):
+                print(f"Loading {patient} ...")
+                patients_data[name] = load_patient(patient_path)
+
+    return patients_data
 
 def process_group(root_folder, group_label, fs, bin_size, z_thresh, n_regions):
-    patients = load_all_patients(root_folder)  # dict {patient_id: epochs_concatenated}
+    patients = load_all_patients_sa(root_folder)  # dict {patient_id: epochs_concatenated}
     patient_features = {}  # save feature vectors here
     patient_atm = {}       # save ATMs here
 
