@@ -27,7 +27,7 @@ for patient, times in patients.items():
     binned_signal = active_bin_times(binarized_signal, bin_size)
 
     # Find avalanches 
-    avalanches = find_avalanches(binned_signal, min_duration=1)
+    avalanches = find_avalanches(binned_signal, min_duration=10)
     print(f"{len(avalanches)} avalanches found in the binned signal")
 
     durations = [a["activity"].shape[1] for a in avalanches]
