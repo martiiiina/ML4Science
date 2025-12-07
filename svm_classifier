@@ -23,8 +23,8 @@ print("Class distribution in TEST:",  np.bincount(y_test))
 
 # 3. Pipeline with SVM
 pipeline = Pipeline([
-    ('undersample', RandomUnderSampler(sampling_strategy={1:20}, random_state=42)),
-    ('smote', SMOTE(sampling_strategy={0:20}, random_state=42)),
+    ('undersample', RandomUnderSampler(sampling_strategy={1:12}, random_state=42)),
+    ('smote', SMOTE(sampling_strategy={0:12}, random_state=42)),
     ('scaler', StandardScaler()),
     ('svm', SVC())
 ])

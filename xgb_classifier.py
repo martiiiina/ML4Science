@@ -26,8 +26,8 @@ print("Class distribution in TEST:",  np.bincount(y_test))
 
 # 3. Pipeline with XGBoost
 pipeline = Pipeline([
-    ('undersample', RandomUnderSampler(sampling_strategy={1:20}, random_state=42)),
-    ('smote', SMOTE(sampling_strategy={0:20}, random_state=42)),
+    ('undersample', RandomUnderSampler(sampling_strategy={1:14}, random_state=42)),
+    ('smote', SMOTE(sampling_strategy={0:14}, random_state=42)),
     ('scaler', StandardScaler()),  
     ('xgb', XGBClassifier(
         objective='binary:logistic',
