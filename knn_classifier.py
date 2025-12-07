@@ -13,8 +13,8 @@ from sklearn.decomposition import PCA
 from imblearn.pipeline import Pipeline
 
 # 1. Load features data
-df = pd.read_csv("atm_dataset.csv")
-X = df.filter(regex="^atm_").values
+df = pd.read_csv("coherence_dataset.csv")
+X = df.filter(regex="^coh_").values
 y = df["label"].values
 print("X shape:", X.shape)
 print("y distribution:", np.bincount(y))
