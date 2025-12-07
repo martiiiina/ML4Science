@@ -4,6 +4,7 @@ from helpers import *
 
 # 1. Load data
 root = r"\\sv-nas1.rcp.epfl.ch\Hummel-Data\TiMeS\Students_Interns\MB_fall_2025\NeuronalAvalanches_dataset"
+#root = "/Volumes/MB_fall_2025//NeuronalAvalanches_dataset"
 patients = load_all_patients(root)  # dictionary, k: patients_id, v: np.array of concatenated epochs
 
 # 2. Signal binarization and avalanches construction
@@ -27,7 +28,7 @@ for patient, times in patients.items():
     binned_signal = active_bin_times(binarized_signal, bin_size)
 
     # Find avalanches 
-    avalanches = find_avalanches(binned_signal, min_duration=10)
+    avalanches = find_avalanches(binned_signal, min_duration=1)
     print(f"{len(avalanches)} avalanches found in the binned signal")
 
     durations = [a["activity"].shape[1] for a in avalanches]
@@ -37,7 +38,6 @@ for patient, times in patients.items():
     print("   Duration distribution:")
     for v, c in zip(vals, counts):
         print(f"      length {v}: {c} avalanches")
-
 
     # Compute avalanches features
     avalanche_features = compute_avalanche_features(avalanches)

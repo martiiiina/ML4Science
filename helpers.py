@@ -152,7 +152,7 @@ def find_avalanches(binned, min_duration):
         elif active_per_bin[t] == 0 and in_aval: # the avalanche ends
             end = t - 1
             activity = binned[:, start:end+1]
-            if (end - start + 1) >= min_duration:
+            if (end - start) >= min_duration:
                 avalanches.append({
                     "activity": activity,
                     "start_bin": start,
