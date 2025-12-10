@@ -35,7 +35,7 @@ pipeline = Pipeline([
 # 4. Grid search for best k
 cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 params = {
-    'knn__n_neighbors': [1, 3, 5, 7],
+    'knn__n_neighbors': [2, 3, 5, 7],
     'knn__weights': ['uniform', 'distance'],
     'knn__metric': ['euclidean', 'manhattan'],
     }
@@ -71,7 +71,7 @@ pipeline_PCA = Pipeline([
 
 cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 params_PCA = {
-    'knn__n_neighbors': [1, 3, 5, 7],
+    'knn__n_neighbors': [2, 3, 5, 7],
     'knn__weights': ['uniform', 'distance'],
     'knn__metric': ['euclidean', 'manhattan'],    
     }

@@ -33,7 +33,7 @@ pipeline = Pipeline([
         objective='binary:logistic',
         eval_metric='logloss',
         random_state=42,
-        use_label_encoder=False,
+        #use_label_encoder=False,
         tree_method='hist'   # FAST, good for high dimensional data
     ))
 ])
