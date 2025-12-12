@@ -2,6 +2,8 @@ import pandas as pd
 from scipy.stats import zscore
 from helpers import *
 
+# TODO: NA have fat-tailed distributions in terms of length, plot for the report and to justify the binning
+
 # 1. Load data
 root = r"\\sv-nas1.rcp.epfl.ch\Hummel-Data\TiMeS\Students_Interns\MB_fall_2025\NeuronalAvalanches_dataset"
 #root = "/Volumes/MB_fall_2025//NeuronalAvalanches_dataset"
@@ -10,7 +12,7 @@ patients = load_all_patients(root)  # dictionary, k: patients_id, v: np.array of
 # 2. Signal binarization and avalanches construction
 fs = 5000
 bin_size = int(0.0002 * fs)       # 20 samples for a binning of 4 ms
-z_thresh = 2
+z_thresh = 2.5
 n_regions = 62
 rows = []
 
@@ -28,7 +30,7 @@ for patient, times in patients.items():
     binned_signal = active_bin_times(binarized_signal, bin_size)
 
     # Find avalanches 
-    avalanches = find_avalanches(binned_signal, min_duration=150)
+    avalanches = find_avalanches(binned_signal, min_duration=20)
     print(f"{len(avalanches)} avalanches found in the binned signal")
 
     durations = [a["activity"].shape[1] for a in avalanches]
