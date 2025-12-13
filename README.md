@@ -6,17 +6,24 @@ This repository contains code for preprocessing, feature extraction, and analysi
 
 ```
 ML4Science/
+├── Literature/         # Reference papers
 ├── atm_plots/          # Heatmaps of ATM matrices for each patient
 ├── coh_plots/          # Heatmaps of Coh matrices for each patient
 ├── dataset_info/       # Information on data acquisition
+├── README.md           # Project description and instructions
+├── atm_dataset.csv     # DataFrame of ATM features
+├── coh_dataset.csv     # DataFrame of Coh features
 ├── extract_atm.py      # Extract ATMs and save features in a .csv file
 ├── extract_coh.py      # Extract Cohs and save features in a .csv file
 ├── helpers.py          # Helper functions for loading, binarization, ATM/Coh computation
-├── knn_classifier.py/  # KNN classifier
-├── Literature/         # Reference papers
-├── README.md           # Project description and instructions
+├── knn_classifier.py   # KNN classifier
+├── optimize_bf.py      # DataFrame of ATM features
+├── results.xlsx        # File with balanced accuracies from ATM classification
+├── results_coh.xlsx    # DataFrame of ATM features
 ├── rf_classifier.py/   # Random Forest classifier
-├── svm_classifier.py/  # SVM classifier
+├── shap_values.py      # Script to perform SHAP analysis
+├── statistical_analysis.jpynb
+├── atm_dataset.csv     # DataFrame of ATM features
 └── xgb_classifier.py/  # XGBoost classifier
 ```
 
@@ -25,14 +32,22 @@ ML4Science/
 Python 3.8+ and the following packages:
 
 - numpy  
+- pandas
 - scipy  
 - matplotlib  
+- seaborn
 - scikit-learn
+- statsmodels
+- mne
+- mne-connectivity
+- imblearn
+- xgboost
+- shap
 
 Install dependencies:
 
 ```
-pip install numpy scipy matplotlib
+pip install numpy pandas scipy matplotlib seaborn statsmodels scikit-learn mne mne-connectivity imbalanced-learn xgboost shap
 ```
 
 ## Data Loading
@@ -49,94 +64,90 @@ root/
 ├── Patient_002/
 │   └── ...
 ```
+# Neuronal Avalanches, ATM, and Coherence Analysis Pipeline
 
-Each `.npy` file contains **one EEG trial** with shape `(n_samples, n_channels)`.  
-The loader automatically **transposes** arrays to `(channels, time)` and concatenates multiple trials **along the time axis**.
+This pipeline processes patient EEG data to extract **neuronal avalanches**, compute **Avalanche Transition Matrices (ATMs)**, and calculate **functional coherence** features. The output is a tabular dataset suitable for machine learning or statistical analysis.
 
-### load_all_patients()
+---
 
-Located in `helpers.py`, it:
+## Overview
 
-- scans all patient directories  
-- enters each `scout_data` folder  
-- loads all `.npy` trials  
-- sorts files to preserve trial order  
-- concatenates trials along time  
-- returns a dictionary:
+The pipeline consists of two main parts:
 
-```
-{ "Patient_001": array(shape = regions × total_time), ... }
-```
+1. **Avalanche and ATM Extraction**  
+   - Load multi-region EEG data from `.npy` files for each patient.
+   - Perform **Z-score normalization** across time for each brain region.
+   - **Binarize** signals according to a z-threshold to detect active events.
+   - **Time-binning**: group time points into bins (default: 4 ms).
+   - **Avalanche detection**: identify consecutive active bins across regions.
+   - Compute **avalanche features**: mean size, max size, mean duration, max duration, branching factor.
+   - Construct **Avalanche Transition Matrices (ATMs)**: probability of transitions between active regions in consecutive bins.
+   - Save ATM heatmaps in `atm_plots/`.
+   - Flatten ATMs into feature vectors and build a **patient-level dataframe** (`atm_dataset.csv`).
 
-## Processing Pipeline
+2. **Coherence Feature Extraction**  
+   - Load patient EEG data as epochs without concatenation.
+   - Create **MNE EpochsArray** objects for each patient.
+   - Compute **spectral coherence** in a frequency band (default: 8–12 Hz) using `mne_connectivity.spectral_connectivity_time`.
+   - Extract the **full coherence matrix**, symmetrize it, and save heatmaps in `coh_plots/`.
+   - Flatten the **lower triangular part** of the coherence matrix to create feature vectors.
+   - Apply **Z-score normalization** to coherence features.
+   - Build a **patient-level dataframe** (`coherence_dataset.csv`).
 
-For each patient, `extract_atm.py` performs:
-
-1. Z-score normalization across time  
-2. Binarization using a Z-threshold  
-3. Time binning (default: 4 ms → 20 samples at 5 kHz)  
-4. Avalanche detection (active consecutive bins)  
-5. Avalanche feature computation  
-6. ATM construction (Avalanche Transition Matrix)  
-7. Saving ATM heatmaps into `atm_plots/`
-
-## Avalanche Features
-
-`compute_avalanche_features()` returns:
-
-- mean_size  
-- max_size  
-- mean_duration  
-- max_duration  
-- branching_factor  
-
-Definitions:  
-- **size** → total active region-bins  
-- **duration** → number of consecutive active bins  
-- **branching factor** → average ratio n(t+1)/n(t)
-
-## Avalanche Transition Matrices (ATMs)
-
-`compute_ATM()`:
-
-- counts transitions i → j across avalanche bins  
-- normalizes rows to probabilities  
-- averages across avalanches  
-- produces a **patient-specific ATM**  
-
-ATM heatmaps are saved in `atm_plots/`.
-
-## Feature Matrix for Machine Learning
-
-`build_feature_matrix()` creates an array:
-
-```
-(n_patients × n_regions²)
-```
-
-Each row stores the **flattened ATM** of a patient.
 
 ## Usage
 
 Run the full pipeline:
 
 ```
-python extract_atm.py
+python extract_atm.py        # For ATM and avalanche feature extraction
+python extract_coh.py        # For coherence feature extraction
 ```
 
-This will:
+## Machine Learning Classification
 
-- load `.npy` trials  
-- perform normalization + binning + avalanche detection  
-- compute patient ATMs  
-- save ATM heatmaps  
-- build the feature matrix `X`  
+The repository provides scripts to train and evaluate machine learning classifiers on the extracted features:
 
-## Output
+- `svm_classifier.py` — Support Vector Machine (SVM)
+- `rf_classifier.py`  — Random Forest (RF)
+- `xgb_classifier.py` — XGBoost (XGB)
 
-- `atm_plots/*.png` — ATM heatmaps  
-- `X.npy` (optional) — feature matrix  
-- console logs with ATM statistics and avalanche counts  
+### Pipeline Overview
+
+Each script follows the same general pipeline:
+
+1. **Load feature dataset**  
+   - For ATM features: `atm_dataset.csv`  
+   - For coherence features: `coherence_dataset.csv` 
+
+2. **Split data**  
+   - Stratified train-test split (default 80/20)  
+   - Maintains class distribution  
+
+3. **Preprocessing and balancing**  
+   - Random undersampling of majority class  
+   - SMOTE oversampling of minority class  
+   - Feature scaling with `StandardScaler`  
+
+4. **Model training**  
+   - Grid search with cross-validation (`StratifiedKFold`) to find best hyperparameters  
+   - Scoring metric: **balanced accuracy**  
+
+5. **Evaluation**  
+   - Test set balanced accuracy  
+   - Full classification report  
+
+6. **Results saving**  
+   - Best hyperparameters, CV and test balanced accuracy are saved to `results.xlsx` or `results_coherence.xlsx`  
+   - For multiple random seeds, a final summary with mean and standard deviation of test balanced accuracy is printed  
+
+### Example Usage
+
+Run the SVM classifier over 50 random seeds:
+
+```
+python svm_classifier.py
+```
 
 ## Author
 
