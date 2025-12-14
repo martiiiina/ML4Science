@@ -66,7 +66,8 @@ root/
 ```
 # Neuronal Avalanches, ATM, and Coherence Analysis Pipeline
 
-This pipeline processes patient EEG data to extract **neuronal avalanches**, compute **Avalanche Transition Matrices (ATMs)**, and calculate **functional coherence** features. The output is a tabular dataset suitable for machine learning or statistical analysis.
+This pipeline processes patient EEG data to extract **neuronal avalanches**, compute **Avalanche Transition Matrices (ATMs)**, and calculate **functional coherence** features. The output is a tabular dataset suitable for machine learning or statistical analysis. 
+The data used in this project belongs to the UPHummel Lab. To run the scripts, you can start with the classification part by using the pre-processed tabular datasets, which already contain the extracted features. These datasets are ready for analysis and machine learning tasks, so there's no need to repeat the preprocessing steps. Hereafter, all the steps followed for the analysis are anyway illustrated. 
 
 ---
 
