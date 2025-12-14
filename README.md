@@ -6,25 +6,24 @@ This repository contains code for preprocessing, feature extraction, and analysi
 
 ```
 ML4Science/
-├── Literature/         # Reference papers
-├── atm_plots/          # Heatmaps of ATM matrices for each patient
-├── coh_plots/          # Heatmaps of Coh matrices for each patient
-├── dataset_info/       # Information on data acquisition
-├── README.md           # Project description and instructions
-├── atm_dataset.csv     # DataFrame of ATM features
-├── coh_dataset.csv     # DataFrame of Coh features
-├── extract_atm.py      # Extract ATMs and save features in a .csv file
-├── extract_coh.py      # Extract Cohs and save features in a .csv file
-├── helpers.py          # Helper functions for loading, binarization, ATM/Coh computation
-├── knn_classifier.py   # KNN classifier
-├── optimize_bf.py      # DataFrame of ATM features
-├── results.xlsx        # File with balanced accuracies from ATM classification
-├── results_coh.xlsx    # DataFrame of ATM features
-├── rf_classifier.py/   # Random Forest classifier
-├── shap_values.py      # Script to perform SHAP analysis
+├── Literature/            # Reference papers
+├── atm_plots/             # Heatmaps of ATM matrices for each patient
+├── coh_plots/             # Heatmaps of Coh matrices for each patient
+├── dataset_info/          # Information on data acquisition
+├── README.md              # Project description and instructions
+├── atm_dataset.csv        # DataFrame of ATM features
+├── coh_dataset.csv        # DataFrame of Coh features
+├── extract_atm.py         # Extract ATMs and save features in a .csv file
+├── extract_coh.py         # Extract Cohs and save features in a .csv file
+├── helpers.py             # Helper functions for loading, binarization, ATM/Coh computation
+├── optimize_bf.py         # Script for time binning optimization
+├── results.xlsx           # File with balanced accuracies from ATM classification
+├── results_coh.xlsx       # File with balanced accuracies from Coh classification
+├── rf_classifier.py/      # Random Forest classifier
+├── shap_values.py         # Script to perform SHAP analysis
 ├── statistical_analysis.jpynb
-├── atm_dataset.csv     # DataFrame of ATM features
-└── xgb_classifier.py/  # XGBoost classifier
+├── svm_classifier.py/     # SVM classifier
+└── xgb_classifier.py/     # XGBoost classifier
 ```
 
 ## Requirements
