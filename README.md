@@ -94,6 +94,9 @@ The pipeline consists of two main parts:
    - Apply **Z-score normalization** to coherence features.
    - Build a **patient-level dataframe** (`coherence_dataset.csv`).
 
+3. **Branching factor optimization**
+   - Coomputes branching factors for different candidate bin sizes
+   - Selects the bin size that minimizes the norm of the difference between observed branching factors and 1 (i.e. criticality condition)
 
 ## Usage
 
@@ -142,6 +145,35 @@ Each script follows the same general pipeline:
    - For multiple random seeds, a final summary with mean and standard deviation of test balanced accuracy is printed  
 
 ### Example Usage
+
+To classify stroke vs. healthy EEG, you can select the feature of interest (either **Avalanche Transition Matrices (ATM)** or **Coherence**) by modifying the following lines in the classifier scripts:
+
+- Change the dataset loaded from **atm_dataset.csv** to **coherence_dataset.csv** depending on the feature you want to use:
+  ```python
+  df = pd.read_csv("atm_dataset.csv")  # For ATM features
+  df = pd.read_csv("coherence_dataset.csv")  # For Coherence features
+
+- Change the feature selection line to match the feature type:
+  ```python
+  X = df.filter(regex="^atm_").values  # For ATM features
+  X = df.filter(regex="^coh_").values  # For Coherence features
+
+- Similarly, change the result filename when saving the classification output:
+  ```python
+   save_results_to_excel(
+      model_name="SVM",
+      best_params=grid.best_params_,
+      cv_score=grid.best_score_,
+      test_score=test_bal_acc,
+      filename="results.xlsx"  # For ATM features
+   )
+   save_results_to_excel(
+      model_name="SVM",
+      best_params=grid.best_params_,
+      cv_score=grid.best_score_,
+      test_score=test_bal_acc,
+      filename="results_coherence.xlsx"  # For Coherence features
+   )
 
 Run the SVM classifier over 50 random seeds:
 
