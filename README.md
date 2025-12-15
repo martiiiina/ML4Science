@@ -48,11 +48,12 @@ Python 3.8+ and the following packages:
 - shap
 - joblib
 - pathlib
+- openpyxl
 
 Install dependencies:
 
 ```
-pip install numpy pandas scipy matplotlib seaborn statsmodels scikit-learn mne mne-connectivity imbalanced-learn xgboost shap joblib pathlib
+pip install numpy pandas scipy matplotlib seaborn statsmodels scikit-learn mne mne-connectivity imbalanced-learn xgboost shap joblib pathlib openpyxl
 ```
 
 ## Data Loading
@@ -187,59 +188,69 @@ Run the SVM classifier over 50 random seeds:
 python svm_classifier.py
 ```
 
-## SHAP Analysis Across Multiple Random Seeds
+## SHAP Stability Analysis Across Random Seeds
 
-This repository performs a comprehensive **SHAP (SHapley Additive exPlanations) analysis** to evaluate the **stability and distribution of feature importance across 50 random seeds** for XGBoost models trained on ATM-based features. The workflow quantifies how consistent model explanations are across different random initializations and maps feature-level SHAP values back to **ATM brain regions (ROIs)** for interpretability.
+This pipeline evaluates the **stability and robustness of SHAP explanations** for XGBoost models trained on ATM connectivity features by comparing results across up to **50 random seeds**. The goal is to ensure that reported feature and brain-region importances are **not driven by random initialization**, but are consistently supported across models.
 
-### Overview of the Analysis
+## Data and Models
 
-The pipeline addresses three key questions:
+- **Dataset**: `atm_dataset.csv`  
+  - Features: columns starting with `atm_` (flattened 62 × 62 ATM connectivity)  
+  - Label: `label`
 
-1. **Are SHAP feature importances stable across random seeds?**
-2. **Which ATM features and ROI-to-ROI connections are consistently influential?**
-3. **Which brain regions (nodes) show the highest overall importance across all seeds?**
+- **Models**: `xgb_models/best_xgb_model_seed_{seed}.pkl`  
+  - One independently trained XGBoost pipeline per seed  
+  - Each pipeline includes a scaler and an XGBoost classifier
 
-To answer these, the script:
-- Computes SHAP values for each trained model (one per seed)
-- Aggregates SHAP statistics across seeds
-- Visualizes distributions using bar plots, beeswarm plots, and heatmaps
-- Reconstructs SHAP values into ROI-to-ROI matrices
-- Exports detailed results to CSV and Excel for downstream analysis
+- **Sampling**:  
+  - Up to 100 samples are randomly selected  
+  - The same samples are used for all seeds to allow fair SHAP comparison
 
-### Directory Structure
+## Analysis Workflow
 
-The script automatically creates the following output folders:
+1. **SHAP computation**  
+   - SHAP values are computed for each seed using `TreeExplainer`  
+   - Results are stored in a 3D array:  
+     `(n_seeds, n_samples, n_features)`
 
-```text
-shap_plots/
-│── shap_distribution_across_seeds.png
-│── shap_beeswarm_seed_*.png
-│── shap_beeswarm_aggregated_all_seeds.png
-│── shap_bar_aggregated_all_seeds.png
-│── shap_atm_heatmap_aggregated.png
+2. **Feature stability across seeds**  
+   - Mean and standard deviation of absolute SHAP values are computed per feature  
+   - A bar plot with error bars summarizes average importance and variability
 
-shap_values/
-│── shap_values_regions_seed*.csv
-│── shap_values_atm_regions_all_seeds.csv
-│── shap_values_atm_regions_all_seeds.xlsx
-```
+3. **SHAP visualizations**  
+   - Beeswarm plots are generated for each seed  
+   - Aggregated beeswarm and bar plots summarize global, seed-robust feature importance
 
-### Data and Model Inputs
+4. **ROI-level reconstruction**  
+   - Features are reshaped into 62 × 62 ROI–ROI matrices  
+   - Mean absolute SHAP values are computed per connection and per seed
 
-### Dataset
-- **File**: `atm_dataset.csv`
-- **Features**: All columns whose names start with `atm_`
-- **Target variable**: `label`
-- **Feature dimensionality**:
-  - Each subject is represented by a flattened ATM connectivity matrix
-  - Features correspond to pairwise connections between **62 brain regions**
+5. **Multi-seed aggregation**  
+   - ROI–ROI SHAP values are averaged across seeds  
+   - Node-level (ROI) importance is derived by pooling all connections involving each region
 
-### Models
-- **Directory**: `xgb_models/`
-- **Filename pattern**:
-  ```text
-  best_xgb_model_seed_{seed}.pkl
+6. **Heatmap visualization**  
+   - A 62 × 62 heatmap shows aggregated SHAP importance for ATM connections across all seeds
 
+## Outputs
+
+- **Plots** (`shap_plots/`)
+  - Feature importance distribution across seeds  
+  - Per-seed and aggregated beeswarm plots  
+  - Aggregated ROI–ROI SHAP heatmap
+
+- **Tables** (`shap_values/`)
+  - Per-seed ROI–ROI SHAP rankings (CSV)  
+  - Combined CSV and Excel file with:
+    - Seed-wise summaries
+    - Aggregated ROI–ROI importance
+    - Node (ROI) importance across all seeds
+
+## Interpretation
+
+- **Consistent high SHAP values across seeds** → robust features or connections  
+- **Low cross-seed variance** → stable explanations  
+- **High node importance** → brain regions acting as influential hubs
 
 ## Author
 
