@@ -102,15 +102,12 @@ mean_shap_values = np.mean(shap_3d_array, axis=0)
     # 2. Mean over all seeds (axis=0)
     # Resulting shape: (n_features, )
 mean_abs_feature_importance = np.mean(np.abs(mean_shap_values), axis=0)
-
 print("-" * 30)
 print(f"Shape del Mean SHAP Value (su 50 seeds): {mean_shap_values.shape}")
 print(f"Shape dell'importanza media (su 50 seeds, per feature): {mean_abs_feature_importance.shape}")
-
 fig, ax = plt.subplots(figsize=(12, 6))
 # Flatten all SHAP values across all seeds to show individual sample predictions
 all_shap_flat = all_shap_values.reshape(-1, all_shap_values.shape[-1])
-
 # Beeswarm plot for the aggregated SHAP values
 shap.plots.beeswarm(shap.Explanation(values=all_shap_flat, feature_names=list(feature_names)), show=False)
 plt.title("SHAP Beeswarm Plot - Aggregated Across All 50 Seeds")
@@ -118,7 +115,6 @@ plt.tight_layout()
 plt.savefig(plot_output_dir / "shap_beeswarm_aggregated_all_seeds.png", dpi=300)
 plt.show()
 print("Saved aggregated bar plot across all seeds")
-
 # Bar plot for the aggregated SHAP values
 shap.plots.bar(shap.Explanation(values=all_shap_flat, feature_names=list(feature_names)), show=False)
 plt.title("SHAP Bar Plot - Aggregated Across All 50 Seeds")
@@ -126,10 +122,7 @@ plt.tight_layout()
 plt.savefig(plot_output_dir / "shap_bar_aggregated_all_seeds.png", dpi=300)
 plt.show()
 print("Saved aggregated beeswarm plot across all seeds")
-
-
 print("SHAP analysis completed.")
-
 
 
 # 5. Reconstruct SHAP values to ATM regions for each seed
@@ -166,9 +159,7 @@ for seed_idx, shap_values in enumerate(all_shap_values):
 shap_roi_df = pd.concat(all_roi_dfs, ignore_index=True)
 
 # Save to CSV
-
 shap_roi_df.to_csv(shap_output_dir / "shap_values_atm_regions_all_seeds.csv", index=False)
-
 # Save to Excel with separate sheets for each seed, and an introductory sheet with summary statistics for the most influential regions overall
 with pd.ExcelWriter("shap_values_atm_regions_all_seeds.xlsx", engine="openpyxl") as writer:
     # Summary sheet
@@ -233,7 +224,7 @@ with pd.ExcelWriter("shap_values_atm_regions_all_seeds.xlsx", engine="openpyxl")
 print("SHAP values mapped to ATM regions across all seeds")
 print(shap_roi_df.groupby("seed")["mean_abs_shap"].describe())
 
-# 7. Plot aggregated ATM SHAP values heatmap
+# 6. Plot aggregated ATM SHAP values heatmap
 aggregated_shap_atm = np.zeros((n_regions, n_regions))
 for i in range(n_regions):
     for j in range(n_regions):

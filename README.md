@@ -6,24 +6,28 @@ This repository contains code for preprocessing, feature extraction, and analysi
 
 ```
 ML4Science/
-├── Literature/            # Reference papers
-├── atm_plots/             # Heatmaps of ATM matrices for each patient
-├── coh_plots/             # Heatmaps of Coh matrices for each patient
-├── dataset_info/          # Information on data acquisition
-├── README.md              # Project description and instructions
-├── atm_dataset.csv        # DataFrame of ATM features
-├── coh_dataset.csv        # DataFrame of Coh features
-├── extract_atm.py         # Extract ATMs and save features in a .csv file
-├── extract_coh.py         # Extract Cohs and save features in a .csv file
-├── helpers.py             # Helper functions for loading, binarization, ATM/Coh computation
-├── optimize_bf.py         # Script for time binning optimization
-├── results.xlsx           # File with balanced accuracies from ATM classification
-├── results_coh.xlsx       # File with balanced accuracies from Coh classification
-├── rf_classifier.py/      # Random Forest classifier
-├── shap_values.py         # Script to perform SHAP analysis
+├── Literature/                              # Reference papers
+├── atm_plots/                               # Heatmaps of ATM matrices for each patient
+├── coh_plots/                               # Heatmaps of Coh matrices for each patient
+├── dataset_info/                            # Information on data acquisition
+├── shap_plots/                              # Shap values plots
+├── shap_values/                             # Shape values stored in .csv files for all seeds
+├── xgb_models/                              # Best XGB model for each random state, used for SHAP analysis
+├── README.md                                # Project description and instructions
+├── atm_dataset.csv                          # DataFrame of ATM features
+├── coh_dataset.csv                          # DataFrame of Coh features
+├── extract_atm.py                           # Extract ATMs and save features in a .csv file
+├── extract_coh.py                           # Extract Cohs and save features in a .csv file
+├── helpers.py                               # Helper functions for loading, binarization, ATM/Coh computation
+├── optimize_bf.py                           # Script for time binning optimization
+├── results_atm.xlsx                         # Bbalanced accuracies from ATM classification
+├── results_coh.xlsx                         # Balanced accuracies from Coh classification
+├── rf_classifier.py                         # Random Forest classifier
+├── shap_analysis.py                         # Script to perform SHAP analysis on XGB
+├── shap_values_atm_regions_all_seeds.xlsx   # Summary of SHAP analysis
 ├── statistical_analysis.jpynb
-├── svm_classifier.py/     # SVM classifier
-└── xgb_classifier.py/     # XGBoost classifier
+├── svm_classifier.py                        # SVM classifier
+└── xgb_classifier.py                        # XGBoost classifier
 ```
 
 ## Requirements
@@ -42,11 +46,13 @@ Python 3.8+ and the following packages:
 - imblearn
 - xgboost
 - shap
+- joblib
+- pathlib
 
 Install dependencies:
 
 ```
-pip install numpy pandas scipy matplotlib seaborn statsmodels scikit-learn mne mne-connectivity imbalanced-learn xgboost shap
+pip install numpy pandas scipy matplotlib seaborn statsmodels scikit-learn mne mne-connectivity imbalanced-learn xgboost shap joblib pathlib
 ```
 
 ## Data Loading
@@ -165,7 +171,7 @@ To classify stroke vs. healthy EEG, you can select the feature of interest (eith
       best_params=grid.best_params_,
       cv_score=grid.best_score_,
       test_score=test_bal_acc,
-      filename="results.xlsx"  # For ATM features
+      filename="results_atm.xlsx"  # For ATM features
    )
    save_results_to_excel(
       model_name="SVM",
