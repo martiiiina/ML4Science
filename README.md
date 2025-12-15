@@ -192,7 +192,7 @@ python svm_classifier.py
 
 This pipeline evaluates the **stability and robustness of SHAP explanations** for XGBoost models trained on ATM connectivity features by comparing results across up to **50 random seeds**. The goal is to ensure that reported feature and brain-region importances are **not driven by random initialization**, but are consistently supported across models.
 
-## Data and Models
+### Data and Models
 
 - **Dataset**: `atm_dataset.csv`  
   - Features: columns starting with `atm_` (flattened 62 × 62 ATM connectivity)  
@@ -206,7 +206,7 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
   - Up to 100 samples are randomly selected  
   - The same samples are used for all seeds to allow fair SHAP comparison
 
-## Analysis Workflow
+### Analysis Workflow
 
 1. **SHAP computation**  
    - SHAP values are computed for each seed using `TreeExplainer`  
@@ -232,7 +232,7 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
 6. **Heatmap visualization**  
    - A 62 × 62 heatmap shows aggregated SHAP importance for ATM connections across all seeds
 
-## Outputs
+### Outputs
 
 - **Plots** (`shap_plots/`)
   - Feature importance distribution across seeds  
@@ -246,7 +246,7 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
     - Aggregated ROI–ROI importance
     - Node (ROI) importance across all seeds
 
-## Interpretation
+### Interpretation
 
 - **Consistent high SHAP values across seeds** → robust features or connections  
 - **Low cross-seed variance** → stable explanations  
