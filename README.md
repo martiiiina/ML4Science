@@ -191,8 +191,6 @@ python svm_classifier.py
 
 This repository performs a comprehensive **SHAP (SHapley Additive exPlanations) analysis** to evaluate the **stability and distribution of feature importance across 50 random seeds** for XGBoost models trained on ATM-based features. The workflow quantifies how consistent model explanations are across different random initializations and maps feature-level SHAP values back to **ATM brain regions (ROIs)** for interpretability.
 
----
-
 ### Overview of the Analysis
 
 The pipeline addresses three key questions:
@@ -207,8 +205,6 @@ To answer these, the script:
 - Visualizes distributions using bar plots, beeswarm plots, and heatmaps
 - Reconstructs SHAP values into ROI-to-ROI matrices
 - Exports detailed results to CSV and Excel for downstream analysis
-
----
 
 ### Directory Structure
 
@@ -226,6 +222,7 @@ shap_values/
 │── shap_values_regions_seed*.csv
 │── shap_values_atm_regions_all_seeds.csv
 │── shap_values_atm_regions_all_seeds.xlsx
+```
 
 ### Data and Model Inputs
 
