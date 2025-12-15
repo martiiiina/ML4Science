@@ -8,6 +8,9 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline
 from helpers import *
+import joblib
+from pathlib import Path
+
 
 def run_single_seed(seed):
     print(f"\n===== Running SEED = {seed} =====")
@@ -82,6 +85,9 @@ def run_single_seed(seed):
     print("\nTest balanced accuracy:", test_bal_acc)
     print(classification_report(y_test, y_pred))
 
+    output_dir = Path("xgb_models")
+    output_dir.mkdir(exist_ok=True)
+    joblib.dump(best_model, output_dir/f"best_xgb_model_seed_{seed}.pkl")
     # 6. Save results
     save_results_to_excel(
         model_name="XGBoost",
