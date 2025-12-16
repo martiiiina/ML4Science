@@ -27,7 +27,7 @@ random_indices = np.random.choice(X_atm.shape[0], size=sample_size, replace=Fals
 X_sample = X_atm[random_indices]
 
 # 2. Load models and compute SHAP values across seeds
-output_dir = Path("xgb_models")
+output_dir = Path("xgb_best_models")
 feature_names = df_atm.filter(regex="^atm_").columns
 all_shap_values = []
 shap_objects = []
@@ -103,8 +103,8 @@ mean_shap_values = np.mean(shap_3d_array, axis=0)
     # Resulting shape: (n_features, )
 mean_abs_feature_importance = np.mean(np.abs(mean_shap_values), axis=0)
 print("-" * 30)
-print(f"Shape del Mean SHAP Value (su 50 seeds): {mean_shap_values.shape}")
-print(f"Shape dell'importanza media (su 50 seeds, per feature): {mean_abs_feature_importance.shape}")
+print(f"Mean SHAP Value over 50 seeds shape: {mean_shap_values.shape}")
+print(f"Shape of mean absolute feature importance (over 50 seeds, per feature): {mean_abs_feature_importance.shape}")
 fig, ax = plt.subplots(figsize=(12, 6))
 # Flatten all SHAP values across all seeds to show individual sample predictions
 all_shap_flat = all_shap_values.reshape(-1, all_shap_values.shape[-1])
@@ -114,14 +114,14 @@ plt.title("SHAP Beeswarm Plot - Aggregated Across All 50 Seeds")
 plt.tight_layout()
 plt.savefig(plot_output_dir / "shap_beeswarm_aggregated_all_seeds.png", dpi=300)
 plt.show()
-print("Saved aggregated bar plot across all seeds")
+print("Saved aggregated beeswarm plot across all seeds")
 # Bar plot for the aggregated SHAP values
 shap.plots.bar(shap.Explanation(values=all_shap_flat, feature_names=list(feature_names)), show=False)
 plt.title("SHAP Bar Plot - Aggregated Across All 50 Seeds")
 plt.tight_layout()
 plt.savefig(plot_output_dir / "shap_bar_aggregated_all_seeds.png", dpi=300)
 plt.show()
-print("Saved aggregated beeswarm plot across all seeds")
+print("Saved aggregated bar plot across all seeds")
 print("SHAP analysis completed.")
 
 
@@ -153,8 +153,7 @@ for seed_idx, shap_values in enumerate(all_shap_values):
     df.to_csv(shap_output_dir / f"shap_values_regions_seed{seed_idx}.csv", index=False)
     all_roi_dfs.append(df)
     print(f"SHAP values mapped to ATM regions and saved to shap_values_regions_seed{seed_idx}.csv")
-    print(f"SHAP values mapped to ATM regions and saved to shap_values_regions_seed{seed_idx}.csv")
-
+    
 # Combine all seeds
 shap_roi_df = pd.concat(all_roi_dfs, ignore_index=True)
 
