@@ -20,7 +20,7 @@ ML4Science/
 ├── extract_coh.py                           # Extract Cohs and save features in a .csv file
 ├── helpers.py                               # Helper functions for loading, binarization, ATM/Coh computation
 ├── optimize_bf.py                           # Script for time binning optimization
-├── results_atm.xlsx                         # Bbalanced accuracies from ATM classification
+├── results_atm.xlsx                         # Balanced accuracies from ATM classification
 ├── results_coh.xlsx                         # Balanced accuracies from Coh classification
 ├── rf_classifier.py                         # Random Forest classifier
 ├── shap_analysis.py                         # Script to perform SHAP analysis on XGB
@@ -35,6 +35,7 @@ ML4Science/
 Python 3.8+ and the following packages:
 
 - numpy  
+- os
 - pandas
 - scipy  
 - matplotlib  
@@ -53,7 +54,7 @@ Python 3.8+ and the following packages:
 Install dependencies:
 
 ```
-pip install numpy pandas scipy matplotlib seaborn statsmodels scikit-learn mne mne-connectivity imbalanced-learn xgboost shap joblib pathlib openpyxl
+pip install numpy os pandas scipy matplotlib seaborn statsmodels scikit-learn mne mne-connectivity imbalanced-learn xgboost shap joblib pathlib openpyxl
 ```
 
 ## Data Loading
@@ -149,6 +150,7 @@ Each script follows the same general pipeline:
 
 6. **Results saving**  
    - Best hyperparameters, CV and test balanced accuracy are saved to `results_atm.xlsx` or `results_coherence.xlsx`  
+   - Balanced accuracies are saved for each seed in the `results*.xlsx`file
    - For multiple random seeds, a final summary with mean and standard deviation of test balanced accuracy is printed  
 
 ### Example Usage
