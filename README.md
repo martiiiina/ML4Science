@@ -85,7 +85,7 @@ The pipeline consists of two main parts:
    - Load multi-region EEG data from `.npy` files for each patient.
    - Perform **Z-score normalization** across time for each brain region.
    - **Binarize** signals according to a z-threshold to detect active events.
-   - **Time-binning**: group time points into bins (default: 4 ms).
+   - **Time-binning**: group time points into bins 
    - **Avalanche detection**: identify consecutive active bins across regions.
    - Compute **avalanche features**: mean size, max size, mean duration, max duration, branching factor.
    - Construct **Avalanche Transition Matrices (ATMs)**: probability of transitions between active regions in consecutive bins.
@@ -95,7 +95,7 @@ The pipeline consists of two main parts:
 2. **Coherence Feature Extraction**  
    - Load patient EEG data as epochs without concatenation.
    - Create **MNE EpochsArray** objects for each patient.
-   - Compute **spectral coherence** in a frequency band (default: 8–12 Hz) using `mne_connectivity.spectral_connectivity_time`.
+   - Compute **spectral coherence** in a frequency band using `mne_connectivity.spectral_connectivity_time`.
    - Extract the **full coherence matrix**, symmetrize it, and save heatmaps in `coh_plots/`.
    - Flatten the **lower triangular part** of the coherence matrix to create feature vectors.
    - Apply **Z-score normalization** to coherence features.
@@ -148,7 +148,7 @@ Each script follows the same general pipeline:
    - Full classification report  
 
 6. **Results saving**  
-   - Best hyperparameters, CV and test balanced accuracy are saved to `results.xlsx` or `results_coherence.xlsx`  
+   - Best hyperparameters, CV and test balanced accuracy are saved to `results_atm.xlsx` or `results_coherence.xlsx`  
    - For multiple random seeds, a final summary with mean and standard deviation of test balanced accuracy is printed  
 
 ### Example Usage
@@ -190,7 +190,7 @@ python svm_classifier.py
 
 ## SHAP Stability Analysis Across Random Seeds
 
-This pipeline evaluates the **stability and robustness of SHAP explanations** for XGBoost models trained on ATM connectivity features by comparing results across up to **50 random seeds**. The goal is to ensure that reported feature and brain-region importances are **not driven by random initialization**, but are consistently supported across models.
+This pipeline evaluates the **stability and robustness of SHAP explanations** for XGBoost models trained on ATM connectivity features by comparing results across up to **50 random seeds**. The goal is to ensure that reported feature and brain-region importances are **not driven by random splits**, but are consistently supported across models.
 
 ### Data and Models
 
@@ -198,7 +198,7 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
   - Features: columns starting with `atm_` (flattened 62 × 62 ATM connectivity)  
   - Label: `label`
 
-- **Models**: `xgb_models/best_xgb_model_seed_{seed}.pkl`  
+- **Models**: `xgb_best_models/best_xgb_model_seed_{seed}.pkl`  
   - One independently trained XGBoost pipeline per seed  
   - Each pipeline includes a scaler and an XGBoost classifier
 
@@ -215,7 +215,6 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
 
 2. **Feature stability across seeds**  
    - Mean and standard deviation of absolute SHAP values are computed per feature  
-   - A bar plot with error bars summarizes average importance and variability
 
 3. **SHAP visualizations**  
    - Beeswarm plots are generated for each seed  
@@ -238,6 +237,8 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
   - Feature importance distribution across seeds  
   - Per-seed and aggregated beeswarm plots  
   - Aggregated ROI–ROI SHAP heatmap
+  - Beeswarm per MAV of SHAP values
+  - Bar plot per MAV of SHAP values 
 
 - **Tables** (`shap_values/`)
   - Per-seed ROI–ROI SHAP rankings (CSV)  
@@ -254,5 +255,5 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
 
 ## Author
 
-Project maintained by **Martina** for the EPFL ML4Science course.  
+Project maintained by **Martina, Clotilde and Martina** for the EPFL ML4Science course.  
 Feel free to open issues or request improvements!
