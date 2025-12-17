@@ -6,8 +6,7 @@ from mne_connectivity import spectral_connectivity_time
 from helpers import *
 
 # 1. Load data
-#root = r"\\sv-nas1.rcp.epfl.ch\Hummel-Data\TiMeS\Students_Interns\MB_fall_2025\NeuronalAvalanches_dataset"
-root = "/Volumes/MB_fall_2025//NeuronalAvalanches_dataset"
+root = r"\\sv-nas1.rcp.epfl.ch\Hummel-Data\TiMeS\Students_Interns\MB_fall_2025\NeuronalAvalanches_dataset"
 patients = load_all_patients_coh(root)  # dictionary, k: patients_id, v: np.array of non-concatenated epochs
 
 

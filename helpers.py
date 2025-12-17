@@ -3,9 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import zscore
-from mne_connectivity import spectral_connectivity_epochs
-
 def load_patient(patient_folder):
+    """Load and concatenate all .npy epoch files for a single patient."""
     epochs = []
     for fname in sorted(os.listdir(patient_folder)):
         if not fname.endswith(".npy"):
@@ -22,6 +21,7 @@ def load_patient(patient_folder):
 
 
 def load_all_patients(root):
+    """Load data for all stroke and healthy patients from the root directory."""
     patients_data = {}
     root_stroke = os.path.join(root, "acutestroke_data_combineflipping_final")
     for dir in os.listdir(root_stroke):
@@ -54,6 +54,7 @@ def load_all_patients(root):
     return patients_data
 
 def load_patient_coh(patient_folder):
+    """Load epochs for one patient as an array, used for coherence analysis."""
     epochs = []
     for fname in sorted(os.listdir(patient_folder)):
         if not fname.endswith(".npy"):
@@ -70,6 +71,7 @@ def load_patient_coh(patient_folder):
     return epochs
 
 def load_all_patients_coh(root):
+    """Load all patients’ data for coherence analysis."""
     patients_data = {}
     root_stroke = os.path.join(root, "acutestroke_data_combineflipping_final")
     for dir in os.listdir(root_stroke):
@@ -216,6 +218,7 @@ def compute_avalanche_features(avalanches):
     return features
 
 def compute_ATM(avalanches, n_regions = 62):
+    """Compute the Avalanche Transition Matrix (ATM) from detected avalanches."""
     ATMs = []
 
     for aval in avalanches:
@@ -260,7 +263,7 @@ def save_mat_plot(atm_matrix, patient_id, out_folder="atm_plots"):
     print(f"Saved ATM plot for {patient_id} → {save_path}")
 
 def label_from_patient_id(patient_id):
-    # prende le ultime 3 cifre
+    # takes last 3 digits
     number = int(patient_id[-3:])
     return 0 if number > 100 else 1
 
@@ -291,9 +294,8 @@ def save_results_to_excel(model_name, best_params, cv_score, test_score, filenam
 
 
 ##########################################################################################
-##########################################################################################
-##########################################################################################
 # FOR STATISTICAL ANALYSIS
+
 def load_all_patients_sa(root):
     patients_data = {}
 
