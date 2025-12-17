@@ -114,7 +114,7 @@ def active_bin_times(binarized_signal, bin_size):
     bin_size: number of timepoints per bin
 
     output:
-        time_bins: (n_bins,) -> 1 if at least one region is active in the bin
+        time_bins: (n_regions, n_bins) -> 1 if at least one region is active in the bin
     """
     n_regions, n_samples = binarized_signal.shape
     n_bins = n_samples // bin_size

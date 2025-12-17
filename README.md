@@ -11,11 +11,11 @@ ML4Science/
 ├── coh_plots/                               # Heatmaps of Coh matrices for each patient
 ├── dataset_info/                            # Information on data acquisition
 ├── shap_plots/                              # Shap values plots
-├── shap_values/                             # Shape values stored in .csv files for all seeds
+├── shap_values/                             # Shap values stored in .csv files for all seeds
 ├── xgb__best_models/                        # Best XGB model for each random state, used for SHAP analysis
 ├── README.md                                # Project description and instructions
 ├── atm_dataset.csv                          # DataFrame of ATM features
-├── coh_dataset.csv                          # DataFrame of Coh features
+├── coherence_dataset.csv                    # DataFrame of Coh features
 ├── extract_atm.py                           # Extract ATMs and save features in a .csv file
 ├── extract_coh.py                           # Extract Cohs and save features in a .csv file
 ├── helpers.py                               # Helper functions for loading, binarization, ATM/Coh computation
@@ -25,7 +25,7 @@ ML4Science/
 ├── rf_classifier.py                         # Random Forest classifier
 ├── shap_analysis.py                         # Script to perform SHAP analysis on XGB
 ├── shap_values_atm_regions_all_seeds.xlsx   # Summary of SHAP analysis
-├── statistical_analysis.jpynb               # Statistial analysis on NA scalar features
+├── statistical_analysis.ipynb               # Statistial analysis on NA scalar features
 ├── svm_classifier.py                        # SVM classifier
 └── xgb_classifier.py                        # XGBoost classifier
 ```
@@ -102,7 +102,7 @@ The pipeline consists of two main parts:
    - Build a **patient-level dataframe** (`coherence_dataset.csv`).
 
 3. **Branching factor optimization**
-   - Coomputes branching factors for different candidate bin sizes
+   - Computes branching factors for different candidate bin sizes
    - Selects the bin size that minimizes the norm of the difference between observed branching factors and 1 (i.e. criticality condition)
 
 ## Usage
@@ -154,19 +154,33 @@ Each script follows the same general pipeline:
 
 ### Example Usage
 
-To classify stroke vs. healthy EEG, you can select the feature of interest (either **Avalanche Transition Matrices (ATM)** or **Coherence**) by modifying the following lines in the classifier scripts:
+To classify stroke vs. healthy EEG, you can select:
+- The feature type:
+   - Avalanche Transition Matrices (ATM)
+   - Coherence
+- The extracted dataset variant (minimum duration or frequency band)
 
-- Change the dataset loaded from **atm_dataset.csv** to **coherence_dataset.csv** depending on the feature you want to use:
-  ```python
-  df = pd.read_csv("atm_dataset.csv")  # For ATM features
-  df = pd.read_csv("coherence_dataset.csv")  # For Coherence features
+1. Select the extracted dataset
+- Modify the dataset filename according to the parameterization you want to use:
+   - ATM datasets (different bin / duration parameters):
+   ```python
+      df = pd.read_csv("atm_dataset_20.csv")
+      df = pd.read_csv("atm_dataset_30.csv")
+      df = pd.read_csv("atm_dataset_40.csv")
+   ```
+   - Coherence datasets (frequency bands):
+   ```python
+   df = pd.read_csv("coherence_dataset_alpha.csv")
+   df = pd.read_csv("coherence_dataset_beta.csv")
+   ```
 
+2. Select the feature type
 - Change the feature selection line to match the feature type:
   ```python
   X = df.filter(regex="^atm_").values  # For ATM features
   X = df.filter(regex="^coh_").values  # For Coherence features
 
-- Similarly, change the result filename when saving the classification output:
+3. Update the result filename accordingly
   ```python
    save_results_to_excel(
       model_name="SVM",
@@ -182,9 +196,8 @@ To classify stroke vs. healthy EEG, you can select the feature of interest (eith
       test_score=test_bal_acc,
       filename="results_coherence.xlsx"  # For Coherence features
    )
-
-Run the SVM classifier over 50 random seeds:
-
+4. Run the classifier
+- The chosen classifier is evaluated over 50 random seeds:
 ```
 python svm_classifier.py
 ```
