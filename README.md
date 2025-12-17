@@ -7,15 +7,15 @@ This repository contains code for preprocessing, feature extraction, and analysi
 ```
 ML4Science/
 ├── Literature/                              # Reference papers
-├── atm_plots/                               # Heatmaps of ATM matrices for each patient
-├── coh_plots/                               # Heatmaps of Coh matrices for each patient
+├── atm_plots*/                              # Heatmaps of ATM matrices for each patient
+├── coh_plots*/                              # Heatmaps of Coh matrices for each patient
 ├── dataset_info/                            # Information on data acquisition
 ├── shap_plots/                              # Shap values plots
 ├── shap_values/                             # Shap values stored in .csv files for all seeds
 ├── xgb__best_models/                        # Best XGB model for each random state, used for SHAP analysis
 ├── README.md                                # Project description and instructions
-├── atm_dataset.csv                          # DataFrame of ATM features
-├── coherence_dataset.csv                    # DataFrame of Coh features
+├── atm_dataset*.csv                         # DataFrame of ATM features
+├── coherence_dataset*.csv                   # DataFrame of Coh features
 ├── extract_atm.py                           # Extract ATMs and save features in a .csv file
 ├── extract_coh.py                           # Extract Cohs and save features in a .csv file
 ├── helpers.py                               # Helper functions for loading, binarization, ATM/Coh computation
