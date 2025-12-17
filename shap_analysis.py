@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import joblib
 from pathlib import Path
 
-import warnings
-warnings.filterwarnings("ignore", message=".*use_label_encoder.*")
 
 # Creating useful folders for saving outputs
 plot_output_dir = Path("shap_plots")
