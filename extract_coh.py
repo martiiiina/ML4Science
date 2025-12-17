@@ -24,7 +24,7 @@ for patient, epochs in patients.items():
     info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types='eeg')
     epochs_array = mne.EpochsArray(epochs, info)
     
-    # Compute connectivity over time
+    # Compute connectivity over time (default: alpha band)
     min_freq = 8.0
     max_freq = 12.0
     freqs = np.linspace(min_freq, max_freq, int((max_freq - min_freq) * 4 + 1))

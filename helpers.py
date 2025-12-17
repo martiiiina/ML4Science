@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import zscore
+
 def load_patient(patient_folder):
     """Load and concatenate all .npy epoch files for a single patient."""
     epochs = []
@@ -113,7 +114,7 @@ def active_bin_times(binarized_signal, bin_size):
     bin_size: number of timepoints per bin
 
     output:
-        time_bins: (n_bins,) -> 1 if at least one region is active in the bin
+        time_bins: (n_regions, n_bins) -> 1 if at least one region is active in the bin
     """
     n_regions, n_samples = binarized_signal.shape
     n_bins = n_samples // bin_size

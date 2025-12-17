@@ -11,6 +11,7 @@ from helpers import *
 import joblib
 from pathlib import Path
 
+
 def run_single_seed(seed):
     print(f"\n===== Running SEED = {seed} =====")
 
@@ -70,7 +71,7 @@ def run_single_seed(seed):
     best_params=grid.best_params_,
     cv_score=grid.best_score_,
     test_score=test_bal_acc,
-    filename="results.xlsx"
+    filename="results_atm.xlsx"
 )
     # Save best model for this seed
     output_dir = Path("svm_models")

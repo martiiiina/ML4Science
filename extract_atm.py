@@ -10,7 +10,7 @@ patients = load_all_patients(root)  # dictionary, k: patients_id, v: np.array of
 
 # 2. Signal binarization and avalanches construction
 fs = 5000
-bin_size = int(0.0002 * fs)       # 20 samples for a binning of 4 ms
+bin_size = int(0.0002 * fs)       
 z_thresh = 2.5
 n_regions = 62
 rows = []
@@ -28,8 +28,8 @@ for patient, times in patients.items():
     # Divide the signal in time bins 
     binned_signal = active_bin_times(binarized_signal, bin_size)
 
-    # Find avalanches 
-    avalanches = find_avalanches(binned_signal, min_duration=40)
+    # Find avalanches (min_duration default = 30)
+    avalanches = find_avalanches(binned_signal, min_duration=30)
     print(f"{len(avalanches)} avalanches found in the binned signal")
 
     durations = [a["activity"].shape[1] for a in avalanches]

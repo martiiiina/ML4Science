@@ -16,8 +16,8 @@ def run_single_seed(seed):
     print(f"\n===== Running SEED = {seed} =====")
 
     # 1. Load features data
-    df = pd.read_csv("coherence_dataset.csv")
-    X = df.filter(regex="^coh_").values
+    df = pd.read_csv("atm_dataset.csv")
+    X = df.filter(regex="^atm_").values
     y = df["label"].values
 
     print("X shape:", X.shape)
@@ -85,16 +85,17 @@ def run_single_seed(seed):
     print("\nTest balanced accuracy:", test_bal_acc)
     print(classification_report(y_test, y_pred))
 
-    output_dir = Path("xgb_models")
+    output_dir = Path("xgb_best_models")
     output_dir.mkdir(exist_ok=True)
     joblib.dump(best_model, output_dir/f"best_xgb_model_seed_{seed}.pkl")
+
     # 6. Save results
     save_results_to_excel(
         model_name="XGBoost",
         best_params=grid.best_params_,
         cv_score=grid.best_score_,
         test_score=test_bal_acc,
-        filename="results_coherence.xlsx"
+        filename="results_atm.xlsx"
     )
 
     return {
