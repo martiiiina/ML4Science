@@ -20,8 +20,8 @@ ML4Science/
 ├── extract_coh.py                           # Extract Cohs and save features in a .csv file
 ├── helpers.py                               # Helper functions for loading, binarization, ATM/Coh computation
 ├── optimize_bf.py                           # Script for time binning optimization
-├── results_atm.xlsx                         # Balanced accuracies from ATM classification
-├── results_coh.xlsx                         # Balanced accuracies from Coh classification
+├── results_atm.xlsx                         # Balanced accuracies from ATM classification for all seeds
+├── results_coh.xlsx                         # Balanced accuracies from Coh classification for all seeds
 ├── rf_classifier.py                         # Random Forest classifier
 ├── shap_analysis.py                         # Script to perform SHAP analysis on XGB
 ├── shap_values_atm_regions_all_seeds.xlsx   # Summary of SHAP analysis
@@ -35,7 +35,6 @@ ML4Science/
 Python 3.8+ and the following packages:
 
 - numpy  
-- os
 - pandas
 - scipy  
 - matplotlib  
@@ -54,7 +53,7 @@ Python 3.8+ and the following packages:
 Install dependencies:
 
 ```
-pip install numpy os pandas scipy matplotlib seaborn statsmodels scikit-learn mne mne-connectivity imbalanced-learn xgboost shap joblib pathlib openpyxl
+pip install -r requirements.txt
 ```
 
 ## Data Loading

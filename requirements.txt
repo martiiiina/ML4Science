@@ -1,0 +1,15 @@
+numpy
+pandas
+scipy  
+matplotlib  
+seaborn
+scikit-learn==1.7.2
+statsmodels
+mne
+mne-connectivity
+imblearn
+xgboost
+shap
+joblib
+pathlib
+openpyxl
