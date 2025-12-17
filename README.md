@@ -160,8 +160,8 @@ To classify stroke vs. healthy EEG, you can select:
    - Coherence
 - The extracted dataset variant (minimum duration or frequency band)
 
-1. Select the extracted dataset
-- Modify the dataset filename according to the parameterization you want to use:
+1. Select the extracted dataset in the desired classification script (rf_classifier.py, svm_classifier.py, xgb_classifier.py)
+- Modify the dataset filename according to the parameterization you want to use (line 19):
    - ATM datasets (different bin / duration parameters):
    ```python
       df = pd.read_csv("atm_dataset_20.csv")
@@ -174,7 +174,7 @@ To classify stroke vs. healthy EEG, you can select:
    df = pd.read_csv("coherence_dataset_beta.csv")
    ```
 
-2. Select the feature type
+2. Select the feature type (line 20)
 - Change the feature selection line to match the feature type:
   ```python
   X = df.filter(regex="^atm_").values  # For ATM features
