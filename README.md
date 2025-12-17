@@ -12,7 +12,7 @@ ML4Science/
 ├── dataset_info/                            # Information on data acquisition
 ├── shap_plots/                              # Shap values plots
 ├── shap_values/                             # Shap values stored in .csv files for all seeds
-├── xgb__best_models/                        # Best XGB model for each random state, used for SHAP analysis
+├── xgb_best_models/                         # Best XGB model for each random state, used for SHAP analysis
 ├── README.md                                # Project description and instructions
 ├── atm_dataset*.csv                         # DataFrame of ATM features
 ├── coherence_dataset*.csv                   # DataFrame of Coh features
@@ -20,8 +20,9 @@ ML4Science/
 ├── extract_coh.py                           # Extract Cohs and save features in a .csv file
 ├── helpers.py                               # Helper functions for loading, binarization, ATM/Coh computation
 ├── optimize_bf.py                           # Script for time binning optimization
+├── requirements.txt                         # Dependencies
 ├── results_atm.xlsx                         # Balanced accuracies from ATM classification for all seeds
-├── results_coh.xlsx                         # Balanced accuracies from Coh classification for all seeds
+├── results_coherence.xlsx                   # Balanced accuracies from Coh classification for all seeds
 ├── rf_classifier.py                         # Random Forest classifier
 ├── shap_analysis.py                         # Script to perform SHAP analysis on XGB
 ├── shap_values_atm_regions_all_seeds.xlsx   # Summary of SHAP analysis
@@ -160,6 +161,8 @@ To classify stroke vs. healthy EEG, you can select:
    - Coherence
 - The extracted dataset variant (minimum duration or frequency band)
 
+By default, the scripts of all classifiers load the best performing dataset.
+
 1. Select the extracted dataset in the desired classification script (rf_classifier.py, svm_classifier.py, xgb_classifier.py)
 - Modify the dataset filename according to the parameterization you want to use (line 19):
    - ATM datasets (different bin / duration parameters):
@@ -196,8 +199,10 @@ To classify stroke vs. healthy EEG, you can select:
       test_score=test_bal_acc,
       filename="results_coherence.xlsx"  # For Coherence features
    )
+   ```
 4. Run the classifier
 - The chosen classifier is evaluated over 50 random seeds:
+
 ```
 python svm_classifier.py
 ```

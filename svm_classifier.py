@@ -16,7 +16,7 @@ def run_single_seed(seed):
     print(f"\n===== Running SEED = {seed} =====")
 
     # 1. Load features data
-    df = pd.read_csv("atm_dataset.csv")
+    df = pd.read_csv("atm_dataset_30.csv")
     X = df.filter(regex="^atm_").values
     y = df["label"].values
     print("X shape:", X.shape)
@@ -73,11 +73,7 @@ def run_single_seed(seed):
     test_score=test_bal_acc,
     filename="results_atm.xlsx"
 )
-    # Save best model for this seed
-    output_dir = Path("svm_models")
-    output_dir.mkdir(exist_ok=True)
-    joblib.dump(best_model, output_dir/f"best_svm_model_seed_{seed}.pkl")
-
+    
     return {
         "seed": seed,
         "cv_score": grid.best_score_,
