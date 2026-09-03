@@ -1,21 +1,30 @@
-# ML4Science: Avalanche and ATM Analysis
+# Neuronal Avalanches for Stroke Prediction
+
+Analysis code and pre-computed results for the EPFL ML4Science project on neuronal avalanches, Avalanche Transition Matrices (ATMs), and EEG coherence features for stroke prediction.
+
+> The patient recordings are not included in this repository. They belong to the UPHummel Lab.
 
 This repository contains code for preprocessing, feature extraction, and analysis of patient neural recordings. The focus is on detecting **neuronal avalanches** and computing **Avalanche Transition Matrices (ATMs)** from multi-region EEG time-series.
 
-## Project Structure
+For the full project methodology and results, see the [project report](Literature/ML4Science_report.pdf).
+
+## Repository Structure
 
 ```
 ML4Science/
 ├── Literature/                              # Reference papers
-├── atm_plots*/                              # Heatmaps of ATM matrices for each patient
-├── coh_plots*/                              # Heatmaps of Coh matrices for each patient
+├── atm_plots_20/                            # ATM heatmaps for 20-sample bins
+├── atm_plots_30/                            # ATM heatmaps for 30-sample bins
+├── atm_plots_40/                            # ATM heatmaps for 40-sample bins
+├── coh_plots_alpha/                         # Alpha-band coherence heatmaps
+├── coh_plots_beta/                          # Beta-band coherence heatmaps
 ├── dataset_info/                            # Information on data acquisition
 ├── shap_plots/                              # Shap values plots
 ├── shap_values/                             # Shap values stored in .csv files for all seeds
 ├── xgb_best_models/                         # Best XGB model for each random state, used for SHAP analysis
 ├── README.md                                # Project description and instructions
-├── atm_dataset*.csv                         # DataFrame of ATM features
-├── coherence_dataset*.csv                   # DataFrame of Coh features
+├── atm_dataset_*.csv                        # Pre-computed ATM feature tables
+├── coherence_dataset_*.csv                  # Pre-computed coherence feature tables
 ├── extract_atm.py                           # Extract ATMs and save features in a .csv file
 ├── extract_coh.py                           # Extract Cohs and save features in a .csv file
 ├── helpers.py                               # Helper functions for loading, binarization, ATM/Coh computation
@@ -26,59 +35,28 @@ ML4Science/
 ├── rf_classifier.py                         # Random Forest classifier
 ├── shap_analysis.py                         # Script to perform SHAP analysis on XGB
 ├── shap_values_atm_regions_all_seeds.xlsx   # Summary of SHAP analysis
-├── statistical_analysis.ipynb               # Statistial analysis on NA scalar features
+├── statistical analysis.ipynb               # Statistical analysis of avalanche features
 ├── svm_classifier.py                        # SVM classifier
 └── xgb_classifier.py                        # XGBoost classifier
 ```
 
-## Requirements
+## Setup
 
-Python 3.8+ and the following packages:
+Use Python 3.8 or newer. Install the dependencies in a virtual environment:
 
-- numpy  
-- pandas
-- scipy  
-- matplotlib  
-- seaborn
-- scikit-learn
-- statsmodels
-- mne
-- mne-connectivity
-- imblearn
-- xgboost
-- shap
-- joblib
-- pathlib
-- openpyxl
-
-Install dependencies:
-
-```
+```bash
+python -m venv .venv
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Data Loading
+## Overview
 
-Patient data must follow this structure:
-
-```
-root/
-├── Patient_001/
-│   └── scout_data/
-│       ├── epoch_001.npy
-│       ├── epoch_002.npy
-│       └── ...
-├── Patient_002/
-│   └── ...
-```
-# Neuronal Avalanches, ATM, and Coherence Analysis Pipeline
-
-This pipeline processes patient EEG data to extract **neuronal avalanches**, compute **Avalanche Transition Matrices (ATMs)**, and calculate **functional coherence** features. The output is a tabular dataset suitable for machine learning or statistical analysis. 
-The data used in this project belongs to the UPHummel Lab. To run the scripts, you can start with the classification part by using the pre-processed tabular datasets, which already contain the extracted features. These datasets are ready for analysis and machine learning tasks, so there's no need to repeat the preprocessing steps. Hereafter, all the steps followed for the analysis are anyway illustrated. 
+The pipeline processes multi-region EEG recordings to extract neuronal avalanches, compute ATMs, and calculate functional coherence features. Pre-computed feature tables are included, so classification can be reproduced without access to the raw recordings.
 
 ---
-
-## Overview
 
 The pipeline consists of two main parts:
 
@@ -86,7 +64,7 @@ The pipeline consists of two main parts:
    - Load multi-region EEG data from `.npy` files for each patient.
    - Perform **Z-score normalization** across time for each brain region.
    - **Binarize** signals according to a z-threshold to detect active events.
-   - **Time-binning**: group time points into bins 
+   - **Time-binning**: group time points into bins.
    - **Avalanche detection**: identify consecutive active bins across regions.
    - Compute **avalanche features**: mean size, max size, mean duration, max duration, branching factor.
    - Construct **Avalanche Transition Matrices (ATMs)**: probability of transitions between active regions in consecutive bins.
@@ -102,15 +80,21 @@ The pipeline consists of two main parts:
    - Apply **Z-score normalization** to coherence features.
    - Build a **patient-level dataframe** (`coherence_dataset.csv`).
 
-3. **Branching factor optimization**
-   - Computes branching factors for different candidate bin sizes
-   - Selects the bin size that minimizes the norm of the difference between observed branching factors and 1 (i.e. criticality condition)
 
-## Usage
+Raw patient data must follow this structure:
 
-Run the full pipeline:
-
+```text
+root/
+├── acutestroke_data_combineflipping_final/
+│   └── .../Patient_001/scout_data/*.npy
+└── healthyold_data/Patient_101/scout_data/*.npy
 ```
+
+## Run Extraction
+
+Run the full pipeline after configuring the data path:
+
+```bash
 python extract_atm.py        # For ATM and avalanche feature extraction
 python extract_coh.py        # For coherence feature extraction
 ```
@@ -128,8 +112,8 @@ The repository provides scripts to train and evaluate machine learning classifie
 Each script follows the same general pipeline:
 
 1. **Load feature dataset**  
-   - For ATM features: `atm_dataset.csv`  
-   - For coherence features: `coherence_dataset.csv` 
+   - For ATM features: `atm_dataset_20.csv`, `atm_dataset_30.csv`, or `atm_dataset_40.csv`
+   - For coherence features: `coherence_dataset_alpha.csv` or `coherence_dataset_beta.csv`
 
 2. **Split data**  
    - Stratified train-test split (default 80/20)  
@@ -150,7 +134,7 @@ Each script follows the same general pipeline:
 
 6. **Results saving**  
    - Best hyperparameters, CV and test balanced accuracy are saved to `results_atm.xlsx` or `results_coherence.xlsx`  
-   - Balanced accuracies are saved for each seed in the `results*.xlsx`file
+   - Balanced accuracies are saved for each seed in the `results*.xlsx` files
    - For multiple random seeds, a final summary with mean and standard deviation of test balanced accuracy is printed  
 
 ### Example Usage
@@ -163,8 +147,7 @@ To classify stroke vs. healthy EEG, you can select:
 
 By default, the scripts of all classifiers load the best performing dataset.
 
-1. Select the extracted dataset in the desired classification script (rf_classifier.py, svm_classifier.py, xgb_classifier.py)
-- Modify the dataset filename according to the parameterization you want to use (line 19):
+1. Select the extracted dataset in the desired classification script (`rf_classifier.py`, `svm_classifier.py`, or `xgb_classifier.py`). Modify the dataset filename according to the parameterization you want to use:
    - ATM datasets (different bin / duration parameters):
    ```python
       df = pd.read_csv("atm_dataset_20.csv")
@@ -177,35 +160,29 @@ By default, the scripts of all classifiers load the best performing dataset.
    df = pd.read_csv("coherence_dataset_beta.csv")
    ```
 
-2. Select the feature type (line 20)
-- Change the feature selection line to match the feature type:
+2. Select the feature type by changing the feature selection line to match the dataset:
   ```python
   X = df.filter(regex="^atm_").values  # For ATM features
   X = df.filter(regex="^coh_").values  # For Coherence features
+   ```
 
 3. Update the result filename accordingly
   ```python
    save_results_to_excel(
-      model_name="SVM",
-      best_params=grid.best_params_,
-      cv_score=grid.best_score_,
       test_score=test_bal_acc,
       filename="results_atm.xlsx"  # For ATM features
    )
    save_results_to_excel(
       model_name="SVM",
-      best_params=grid.best_params_,
-      cv_score=grid.best_score_,
-      test_score=test_bal_acc,
-      filename="results_coherence.xlsx"  # For Coherence features
    )
    ```
-4. Run the classifier
-- The chosen classifier is evaluated over 50 random seeds:
+4. Run the classifier. Each script evaluates the chosen classifier over 50 random seeds:
 
-```
+```bash
 python svm_classifier.py
 ```
+
+The classifier scripts append results to the corresponding Excel workbook. The XGBoost script also stores one fitted model per seed in `xgb_best_models/` for the SHAP analysis.
 
 ## SHAP Stability Analysis Across Random Seeds
 
@@ -213,7 +190,7 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
 
 ### Data and Models
 
-- **Dataset**: `atm_dataset.csv`  
+- **Dataset**: the generated `atm_dataset.csv` file
   - Features: columns starting with `atm_` (flattened 62 × 62 ATM connectivity)  
   - Label: `label`
 
@@ -272,7 +249,13 @@ This pipeline evaluates the **stability and robustness of SHAP explanations** fo
 - **Low cross-seed variance** → stable explanations  
 - **High node importance** → brain regions acting as influential hubs
 
-## Author
+## Reproducibility Notes
+
+- Classification uses stratified train/test splits and balanced accuracy.
+- The default classifiers use the pre-computed ATM or coherence tables; check the input filename near the top of each script before running a large experiment.
+- Raw EEG data and laboratory network paths are intentionally excluded from the repository.
+
+## Authors
 
 Project maintained by **Martina, Clotilde and Martina** for the EPFL ML4Science course.  
 Feel free to open issues or request improvements!

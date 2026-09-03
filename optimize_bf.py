@@ -13,7 +13,7 @@ from scipy.stats import zscore
 from helpers import *
 
 # 1. Load data
-root = r"\\sv-nas1.rcp.epfl.ch\Hummel-Data\TiMeS\Students_Interns\MB_fall_2025\NeuronalAvalanches_dataset"
+root = r"path/to/clean"
 patients = load_all_patients(root)  # dictionary, k: patients_id, v: np.array of concatenated epochs
 
 # 2. Signal binarization and avalanches construction
